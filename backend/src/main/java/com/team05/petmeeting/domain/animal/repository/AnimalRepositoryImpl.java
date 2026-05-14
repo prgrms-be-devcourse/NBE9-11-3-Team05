@@ -6,6 +6,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team05.petmeeting.domain.animal.entity.Animal;
+import com.team05.petmeeting.domain.animal.entity.QAnimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,10 +17,9 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.team05.petmeeting.domain.animal.entity.QAnimal.animal;
-
 @RequiredArgsConstructor
 public class AnimalRepositoryImpl implements AnimalRepositoryCustom {
+    private static final QAnimal animal = QAnimal.animal;
 
     private final JPAQueryFactory queryFactory;
 
