@@ -15,12 +15,13 @@ public class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    public Long id;
 
     @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+    @Column(updatable = false, nullable = false)
+    public LocalDateTime createdAt;
 
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    public LocalDateTime updatedAt;
 }

@@ -85,4 +85,8 @@ public class Feed extends BaseEntity {
         }
     }
 
+    // todo: kotlin 변환 후 FeedComment 수정
+    public List<FeedComment> getComments() {
+        return this.comments;
+    }
 }

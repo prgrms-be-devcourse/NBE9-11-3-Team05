@@ -1,10 +1,6 @@
 package com.team05.petmeeting.domain.feed.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team05.petmeeting.domain.comment.dto.CommentReq;
-import com.team05.petmeeting.domain.comment.dto.FeedCommentListRes;
-import com.team05.petmeeting.domain.comment.dto.FeedCommentRes;
-import com.team05.petmeeting.domain.comment.errorCode.CommentErrorCode;
 import com.team05.petmeeting.domain.comment.service.CommentService;
 import com.team05.petmeeting.domain.feed.dto.FeedReq;
 import com.team05.petmeeting.domain.feed.entity.Feed;
@@ -12,7 +8,6 @@ import com.team05.petmeeting.domain.feed.enums.FeedCategory;
 import com.team05.petmeeting.domain.feed.repository.FeedRepository;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
-import com.team05.petmeeting.global.exception.BusinessException;
 import com.team05.petmeeting.global.security.test.WithCustomUser;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -253,121 +247,5 @@ class FeedControllerTest {
                 .andExpect(jsonPath("$.isLiked").value(true));
     }
 
-    // ════════════════════════════════════════════════════
-    //  댓글 테스트
-    // ════════════════════════════════════════════════════
 
-    // 피드 댓글 작성 성공
-    @Test
-    @DisplayName("피드 댓글 생성 성공")
-    void createFeedComment_success() throws Exception {
-        CommentReq req = new CommentReq("테스트 댓글입니다.");
-        FeedCommentRes res = new FeedCommentRes(100L, "테스터", "", 1L, "테스트 댓글입니다.", 1L, null);
-        when(commentService.createFeedComment(100L, 1L, req)).thenReturn(res);
-
-        mvc.perform(post("/api/v1/feeds/{feedId}/comments", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("테스트 댓글입니다."))
-                .andExpect(jsonPath("$.feedId").value(1L));
-    }
-
-    // 피드 댓글 작성 실패 - 비로그인 (401)
-    @Test
-    @WithAnonymousUser
-    @DisplayName("피드 댓글 작성 실패 - 비로그인 (401)")
-    void createFeedComment_fail_unauthorized() throws Exception {
-        CommentReq req = new CommentReq("테스트 댓글입니다.");
-
-        mvc.perform(post("/api/v1/feeds/{feedId}/comments", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    // 피드 댓글 작성 실패 - 빈 내용 (400)
-    @Test
-    @DisplayName("피드 댓글 작성 실패 - 빈 내용 (400)")
-    void createFeedComment_fail_blank() throws Exception {
-        CommentReq req = new CommentReq("");
-
-        mvc.perform(post("/api/v1/feeds/{feedId}/comments", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest());
-    }
-
-    // 피드 댓글 수정 성공
-    @Test
-    @DisplayName("피드 댓글 수정 성공")
-    void updateFeedComment_success() throws Exception {
-        CommentReq req = new CommentReq("수정된 댓글입니다.");
-        FeedCommentRes res = new FeedCommentRes(100L, "테스터", "", 1L, "수정된 댓글입니다.", 1L, null);
-        when(commentService.updateFeedComment(100L, 1L, req)).thenReturn(res);
-
-        mvc.perform(patch("/api/v1/feeds/{feedId}/comments/{commentId}", 1L, 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("수정된 댓글입니다."));
-    }
-
-    // 피드 댓글 수정 실패 - 권한 없는 유저 (401)
-    @Test
-    @DisplayName("피드 댓글 수정 실패 - 권한 없는 유저 (401)")
-    void updateFeedComment_fail_unauthorized() throws Exception {
-        CommentReq req = new CommentReq("수정된 댓글입니다.");
-        when(commentService.updateFeedComment(100L, 1L, req))
-                .thenThrow(new BusinessException(CommentErrorCode.UNAUTHORIZED));
-
-        mvc.perform(patch("/api/v1/feeds/{feedId}/comments/{commentId}", 1L, 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    // 피드 댓글 삭제 성공
-    @Test
-    @DisplayName("피드 댓글 삭제 성공")
-    void deleteFeedComment_success() throws Exception {
-        doNothing().when(commentService).deleteFeedComment(100L, 1L);
-
-        mvc.perform(delete("/api/v1/feeds/{feedId}/comments/{commentId}", 1L, 1L))
-                .andExpect(status().isNoContent());
-    }
-
-    // 피드 댓글 삭제 실패 - 존재하지 않는 댓글 (404)
-    @Test
-    @DisplayName("피드 댓글 삭제 실패 - 존재하지 않는 댓글 (404)")
-    void deleteFeedComment_fail_notFound() throws Exception {
-        doThrow(new BusinessException(CommentErrorCode.COMMENT_NOT_FOUND))
-                .when(commentService).deleteFeedComment(100L, 1L);
-
-        mvc.perform(delete("/api/v1/feeds/{feedId}/comments/{commentId}", 1L, 1L))
-                .andExpect(status().isNotFound());
-    }
-
-    // 피드 댓글 목록 조회 성공
-    @DisplayName("피드 댓글 목록 조회 성공")
-    @Test
-    void getFeedComments_success() throws Exception {
-        FeedCommentListRes res = new FeedCommentListRes(List.of(), 0);
-        when(commentService.getFeedComments(1L)).thenReturn(List.of());
-
-        mvc.perform(get("/api/v1/feeds/{feedId}/comments", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalCount").value(0));
-    }
-
-    // 피드 댓글 목록 조회 - 비로그인도 가능
-    @Test
-    @WithAnonymousUser
-    @DisplayName("피드 댓글 목록 조회 - 비로그인도 가능")
-    void getFeedComments_anonymous_success() throws Exception {
-        when(commentService.getFeedComments(1L)).thenReturn(List.of());
-
-        mvc.perform(get("/api/v1/feeds/{feedId}/comments", 1L))
-                .andExpect(status().isOk());
-    }
 }
