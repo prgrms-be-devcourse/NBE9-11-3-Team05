@@ -6,7 +6,7 @@ import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
 import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
 import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes.NextStep;
 import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
@@ -94,7 +94,7 @@ public class UserAuthService {
         return otpService.markVerifiedWithToken(email);
     }
 
-    public LoginAndRefreshResult signupAndLoginWithEmail(EmailSignupReq request) {
+    public LoginAndRefreshRes signupAndLoginWithEmail(EmailSignupReq request) {
 
         // verification token으로 email 조회
         String email = otpService.getEmailByVerifyToken(request.getVerificationToken())
@@ -128,7 +128,7 @@ public class UserAuthService {
         return issueToken(savedUser);
     }
 
-    public LoginAndRefreshResult loginWithEmail(String email, String password) {
+    public LoginAndRefreshRes loginWithEmail(String email, String password) {
         User user = userRepository.findByEmailWithAuths(email)
                 .orElseThrow(() -> new BusinessException(UserErrorCode.LOGIN_FAILED));
 
@@ -153,7 +153,7 @@ public class UserAuthService {
                 });
     }
 
-    public LoginAndRefreshResult refresh(HttpServletRequest request) {
+    public LoginAndRefreshRes refresh(HttpServletRequest request) {
 
         // 1. 쿠키에서 refreshToken 추출
         String refreshToken = extractRefreshToken(request)
@@ -182,7 +182,7 @@ public class UserAuthService {
         RefreshToken saved = RefreshToken.create(user, uuid);
         refreshTokenRepository.save(saved);
 
-        return new LoginAndRefreshResult(
+        return new LoginAndRefreshRes(
                 uuid.toString(),
                 new AccessTokenRes("Bearer", newAccessToken)
         );
@@ -202,7 +202,7 @@ public class UserAuthService {
         // todo: soft delete 추후 고려
     }
 
-    private LoginAndRefreshResult issueToken(User user) {
+    private LoginAndRefreshRes issueToken(User user) {
 
         // jwt access token 생성
         String accessToken = jwtUtil.createToken(user.getId(), List.of(user.getRole().name()));
@@ -213,7 +213,7 @@ public class UserAuthService {
         refreshTokenRepository.save(saved);
 
         // dto 반환
-        return new LoginAndRefreshResult(
+        return new LoginAndRefreshRes(
                 uuid.toString(),
                 new AccessTokenRes("Bearer", accessToken)
         );

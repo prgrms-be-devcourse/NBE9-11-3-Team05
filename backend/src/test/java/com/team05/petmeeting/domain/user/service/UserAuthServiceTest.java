@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
@@ -129,9 +129,9 @@ class UserAuthServiceTest {
         User user = User.create("test@gmail.com", "닉네임", "홍길동");
         when(userRepository.save(any())).thenReturn(user);
 
-        LoginAndRefreshResult result = userAuthService.signupAndLoginWithEmail(request);
+        LoginAndRefreshRes result = userAuthService.signupAndLoginWithEmail(request);
 
-        assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
+        assertThat(result.accessTokenRes.accessToken).isEqualTo("accessToken");
         verify(otpService).clearVerifiedByToken(token);
     }
 
@@ -177,9 +177,9 @@ class UserAuthServiceTest {
         when(passwordEncoder.matches("pw", "encoded")).thenReturn(true);
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
-        LoginAndRefreshResult result = userAuthService.loginWithEmail(email, "pw");
+        LoginAndRefreshRes result = userAuthService.loginWithEmail(email, "pw");
 
-        assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
+        assertThat(result.accessTokenRes.accessToken).isEqualTo("accessToken");
         verify(refreshTokenRepository).save(any());
     }
 
@@ -239,9 +239,9 @@ class UserAuthServiceTest {
         when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.of(saved));
         when(jwtUtil.createToken(any(), anyList())).thenReturn("newAccess");
 
-        LoginAndRefreshResult result = userAuthService.refresh(request);
+        LoginAndRefreshRes result = userAuthService.refresh(request);
 
-        assertThat(result.accessTokenRes().accessToken()).isEqualTo("newAccess");
+        assertThat(result.accessTokenRes.accessToken).isEqualTo("newAccess");
         verify(refreshTokenRepository).delete(saved);
         verify(refreshTokenRepository).save(any());
     }
