@@ -3,6 +3,8 @@ package com.team05.petmeeting.domain.animal.service;
 import com.team05.petmeeting.domain.animal.dto.AnimalRes;
 import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository;
+import com.team05.petmeeting.domain.shelter.dto.ShelterCommand;
+import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,7 +77,23 @@ class AnimalServiceTest {
         void success() {
             // given
             Pageable pageable = PageRequest.of(0, 10);
-            Animal animal = Animal.builder().desertionNo("123").totalCheerCount(10).build();
+            Shelter shelter = Shelter.create(
+                    new ShelterCommand(
+                            "CARE-123",
+                            "서울 보호소",
+                            "010-1234-5678",
+                            "서울시 강남구",
+                            "관리자",
+                            "서울시",
+                            LocalDateTime.now()
+                    )
+            );
+
+            Animal animal = Animal.builder()
+                    .desertionNo("123")
+                    .totalCheerCount(10)
+                    .shelter(shelter)
+                    .build();
             Page<Animal> animalPage = new PageImpl<>(List.of(animal), pageable, 1);
 
             given(animalRepository.findAnimalsWithFilter(anyString(), anyString(), anyInt(), any(Pageable.class)))

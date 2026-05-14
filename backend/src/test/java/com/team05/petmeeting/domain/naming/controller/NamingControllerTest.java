@@ -1,44 +1,33 @@
 package com.team05.petmeeting.domain.naming.controller;
 
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team05.petmeeting.domain.naming.dto.BadWordAddRes;
-import com.team05.petmeeting.domain.naming.dto.BadWordListRes;
-import com.team05.petmeeting.domain.naming.dto.NameCandidateRes;
-import com.team05.petmeeting.domain.naming.dto.NameProposalReq;
-import com.team05.petmeeting.domain.naming.dto.NameProposalRes;
+import com.team05.petmeeting.domain.naming.dto.*;
 import com.team05.petmeeting.domain.naming.service.NamingService;
 import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import com.team05.petmeeting.global.security.util.JwtUtil;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -82,7 +71,7 @@ class NamingControllerTest {
         Long animalId = 1L;
         NameCandidateRes response = new NameCandidateRes(
                 animalId, "초코",
-                List.of(new NameCandidateRes.CandidateDto(1L, "바둑이", "유저1", 10, false)),
+                List.of(new NameCandidateRes.CandidateDto(1L, 1L, "바둑이", "유저1", 10, false)),
                 1
         );
         given(namingService.getCandidates(eq(animalId), anyLong())).willReturn(response);
