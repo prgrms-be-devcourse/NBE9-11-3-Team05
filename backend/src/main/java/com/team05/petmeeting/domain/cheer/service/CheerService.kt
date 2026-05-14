@@ -18,7 +18,6 @@ import java.time.LocalDate
 import java.util.function.Supplier
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 class CheerService(
     private val cheerRepository: CheerRepository,
