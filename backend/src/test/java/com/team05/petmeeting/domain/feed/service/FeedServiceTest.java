@@ -80,9 +80,9 @@ class FeedServiceTest {
         FeedRes res = feedService.write(req, user);
 
         // then
-        assertThat(res.title()).isEqualTo("제목");
-        assertThat(res.content()).isEqualTo("내용");
-        assertThat(res.category()).isEqualTo(FeedCategory.FREE);
+        assertThat(res.getTitle()).isEqualTo("제목");
+        assertThat(res.getContent()).isEqualTo("내용");
+        assertThat(res.getCategory()).isEqualTo(FeedCategory.FREE);
         verify(feedRepository).save(any(Feed.class));
     }
 
@@ -110,8 +110,8 @@ class FeedServiceTest {
         FeedRes res = feedService.write(req, user);
 
         // then
-        assertThat(res.title()).isEqualTo("입양후기");
-        assertThat(res.category()).isEqualTo(FeedCategory.ADOPTION_REVIEW);
+        assertThat(res.getTitle()).isEqualTo("입양후기");
+        assertThat(res.getCategory()).isEqualTo(FeedCategory.ADOPTION_REVIEW);
         verify(animalRepository).findById(animalId);
         verify(feedRepository).save(any(Feed.class));
     }
@@ -208,8 +208,8 @@ class FeedServiceTest {
         FeedRes res = feedService.modify(feedId, req, user);
 
         // then
-        assertThat(res.title()).isEqualTo("수정된 제목");
-        assertThat(res.content()).isEqualTo("수정된 내용");
+        assertThat(res.getTitle()).isEqualTo("수정된 제목");
+        assertThat(res.getContent()).isEqualTo("수정된 내용");
     }
 
     @Test
@@ -324,8 +324,8 @@ class FeedServiceTest {
         FeedRes res = feedService.getFeed(feedId);
 
         // then
-        assertThat(res.title()).isEqualTo("제목");
-        assertThat(res.likeCount()).isEqualTo(5);
+        assertThat(res.getTitle()).isEqualTo("제목");
+        assertThat(res.getLikeCount()).isEqualTo(5);
     }
 
     @Test

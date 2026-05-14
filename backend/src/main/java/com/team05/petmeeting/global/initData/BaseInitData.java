@@ -71,7 +71,7 @@ public class BaseInitData {
         UserAuth userAuth = UserAuth.create(Provider.LOCAL, "admin@naver.com", passwordEncoder.encode("12345678Aa!"));
         FeedRes res1 = feedService.write(new FeedReq(FeedCategory.FREE, "제목1", "내용1", null, null), user);
         FeedRes res2 = feedService.write(new FeedReq(FeedCategory.FREE, "제목2", "내용2", null, null), user);
-        commentService.createFeedComment(user.getId(), res1.feedId(), new CommentReq("댓글1"));
+        commentService.createFeedComment(user.getId(), res1.getFeedId(), new CommentReq("댓글1"));
 
     }
 

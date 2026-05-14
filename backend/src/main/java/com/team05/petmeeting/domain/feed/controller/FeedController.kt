@@ -1,0 +1,165 @@
+package com.team05.petmeeting.domain.feed.controller
+
+import com.team05.petmeeting.domain.comment.dto.CommentReq
+import com.team05.petmeeting.domain.comment.dto.FeedCommentListRes
+import com.team05.petmeeting.domain.comment.dto.FeedCommentRes
+import com.team05.petmeeting.domain.comment.service.CommentService
+import com.team05.petmeeting.domain.feed.dto.AdoptedAnimalRes
+import com.team05.petmeeting.domain.feed.dto.FeedLikeRes
+import com.team05.petmeeting.domain.feed.dto.FeedListRes
+import com.team05.petmeeting.domain.feed.dto.FeedReq
+import com.team05.petmeeting.domain.feed.dto.FeedRes
+import com.team05.petmeeting.domain.feed.enums.FeedCategory
+import com.team05.petmeeting.domain.feed.service.FeedLikeService
+import com.team05.petmeeting.domain.feed.service.FeedService
+import com.team05.petmeeting.domain.user.repository.UserRepository
+import com.team05.petmeeting.global.security.userdetails.CustomUserDetails
+import io.swagger.v3.oas.annotations.Operation
+import jakarta.validation.Valid
+import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/api/v1/feeds")
+class FeedController(
+    private val commentService: CommentService,
+    private val feedService: FeedService,
+    private val userRepository: UserRepository,
+    private val feedLikeService: FeedLikeService
+) {
+    private val log = LoggerFactory.getLogger(FeedController::class.java)
+
+    @Operation(summary = "피드 댓글 작성")
+    @PostMapping("/{feedId}/comments")
+    fun createFeedComment(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @PathVariable feedId: Long,
+        @Valid @RequestBody commentReq: CommentReq
+    ): ResponseEntity<FeedCommentRes> {
+        log.info("=============== 피드 댓글 작성 =================")
+        val res = commentService.createFeedComment(userDetails.getUserId(), feedId, commentReq)
+        return ResponseEntity.ok(res)
+    }
+
+    @Operation(summary = "피드 댓글 수정")
+    @PatchMapping("/{feedId}/comments/{commentId}")
+    fun updateComment(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @PathVariable feedId: Long,
+        @PathVariable commentId: Long,
+        @Valid @RequestBody commentReq: CommentReq
+    ): ResponseEntity<FeedCommentRes> {
+        val res = commentService.updateFeedComment(userDetails.getUserId(), commentId, commentReq)
+        return ResponseEntity.ok(res)
+    }
+
+    @Operation(summary = "피드 댓글 삭제")
+    @DeleteMapping("/{feedId}/comments/{commentId}")
+    fun deleteComment(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @PathVariable feedId: Long,
+        @PathVariable commentId: Long
+    ): ResponseEntity<Void> {
+        commentService.deleteFeedComment(userDetails.getUserId(), commentId)
+        return ResponseEntity.noContent().build()
+    }
+
+    @Operation(summary = "피드 댓글 목록 조회")
+    @GetMapping("/{feedId}/comments")
+    fun getFeedComments(
+        @PathVariable feedId: Long
+    ): ResponseEntity<FeedCommentListRes> {
+        log.info("=============== 피드 댓글 조회 =================")
+        val list = commentService.getFeedComments(feedId)
+        val res = FeedCommentListRes.from(list)
+        return ResponseEntity.ok(res)
+    }
+
+    @Operation(summary = "피드 글 작성")
+    @PostMapping
+    fun write(
+        @Valid @RequestBody request: FeedReq,
+        @AuthenticationPrincipal userDetails: CustomUserDetails
+    ): ResponseEntity<FeedRes> {
+        val user = userRepository.findById(userDetails.getUserId()).orElseThrow()
+        val res = feedService.write(request, user)
+        return ResponseEntity.status(201).body(res)
+    }
+
+    @Operation(summary = "피드 글 수정")
+    @PutMapping("/{feedId}")
+    fun modify(
+        @PathVariable feedId: Long,
+        @Valid @RequestBody request: FeedReq,
+        @AuthenticationPrincipal userDetails: CustomUserDetails
+    ): ResponseEntity<FeedRes> {
+        val user = userRepository.findById(userDetails.getUserId()).orElseThrow()
+        val res = feedService.modify(feedId, request, user)
+        return ResponseEntity.ok(res)
+    }
+
+    @Operation(summary = "피드 글 삭제")
+    @DeleteMapping("/{feedId}")
+    fun delete(
+        @PathVariable feedId: Long,
+        @AuthenticationPrincipal userDetails: CustomUserDetails
+    ): ResponseEntity<Void> {
+        val user = userRepository.findById(userDetails.getUserId()).orElseThrow()
+        feedService.delete(feedId, user)
+        return ResponseEntity.noContent().build()
+    }
+
+    @Operation(summary = "피드 상세 조회")
+    @GetMapping("/{feedId}")
+    fun getFeed(
+        @PathVariable feedId: Long
+    ): ResponseEntity<FeedRes> {
+        val res = feedService.getFeed(feedId)
+        return ResponseEntity.ok(res)
+    }
+
+    @Operation(summary = "피드 목록 조회")
+    @GetMapping
+    fun getFeeds(
+        pageable: Pageable,
+        @AuthenticationPrincipal userDetails: CustomUserDetails?,
+        @RequestParam(required = false) category: FeedCategory?
+    ): ResponseEntity<Page<FeedListRes>> {
+        val userId = userDetails?.getUserId()
+        val feeds = feedService.getFeeds(pageable, userId, category)
+        return ResponseEntity.ok(feeds)
+    }
+
+    @Operation(summary = "피드 좋아요 토글")
+    @PostMapping("/{feedId}/likes")
+    fun toggleLike(
+        @PathVariable feedId: Long,
+        @AuthenticationPrincipal userDetails: CustomUserDetails
+    ): ResponseEntity<FeedLikeRes> {
+        val user = userRepository.findById(userDetails.getUserId()).orElseThrow()
+        val res = feedLikeService.toggleLike(feedId, user)
+        return ResponseEntity.ok(res)
+    }
+
+    @Operation(summary = "입양 후기 작성용 동물 목록 조회")
+    @GetMapping("/adoptable-animals")
+    fun getAdoptedAnimals(
+        @AuthenticationPrincipal userDetails: CustomUserDetails
+    ): ResponseEntity<List<AdoptedAnimalRes>> {
+        val res = feedService.getAdoptedAnimals(userDetails.getUserId())
+        return ResponseEntity.ok(res)
+    }
+}
