@@ -25,12 +25,10 @@ class CheerService(
     private val animalRepository: AnimalRepository,
 ) {
 
-
     // 오늘 응원 상태 조회
     fun getTodaysStatus(userId: Long): CheerStatusDto {
-        val user = userRepository.findById(userId).orElseThrow<BusinessException?>(
-            Supplier { BusinessException(UserErrorCode.USER_NOT_FOUND) }
-        )
+        val user = userRepository.findById(userId)
+            .orElseThrow { BusinessException(UserErrorCode.USER_NOT_FOUND) }
 
         // 초기화 필요하면 응원 개수 초기화
         user.resetDailyHeartCountIfNeeded()
@@ -43,19 +41,17 @@ class CheerService(
             .atStartOfDay() // 00:00:00
         val resetAt = tomorrow_midnight.toString()
 
-        return CheerStatusDto(usedToday.toLong(), remainingToday, resetAt)
+        return CheerStatusDto(usedToday, remainingToday, resetAt)
     }
 
     // 응원 부여
     fun cheerAnimal(userId: Long, animalId: Long): CheerRes {
         // 사용자 조회
-        val user = userRepository.findById(userId).orElseThrow<BusinessException?>(
-            Supplier { BusinessException(UserErrorCode.USER_NOT_FOUND) }
-        )
+        val user = userRepository.findById(userId)
+            .orElseThrow{ BusinessException(UserErrorCode.USER_NOT_FOUND) }
         // 동물 조회
-        val animal = animalRepository.findById(animalId).orElseThrow<BusinessException?>(
-            Supplier { BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND) }
-        )
+        val animal = animalRepository.findById(animalId)
+            .orElseThrow{ BusinessException(AnimalErrorCode.ANIMAL_NOT_FOUND) }
 
         // 초기화 필요하면 응원 개수 초기화
         user.resetDailyHeartCountIfNeeded()
