@@ -56,4 +56,23 @@ public class AnimalNameCandidate extends BaseEntity { // 이름 후보 (user_id 
         this.isConfirmed = true;
     }
 
+    public Animal getAnimal() {
+        return animal;
+    }
+
+    public String getProposedName() {
+        return proposedName;
+    }
+
+    public Integer getVoteCount() {
+        return voteCount;
+    }
+
+    public boolean isConfirmed() {
+        return isConfirmed;
+    }
+
+    public User getUser() {
+        return user;
+    }
 }

@@ -92,15 +92,15 @@ class NamingRepositoryTest {
         NameCandidateRes result = candidateRepository.getCandidates(animal.getId(), user.getId());
 
         // then: 득표순으로 정렬되었는지, 모든 후보가 나왔는지 검증
-        List<NameCandidateRes.CandidateDto> list = result.candidateDtoList;
+        List<NameCandidateRes.CandidateDto> list = result.getCandidateDtoList();
 
         assertThat(list).hasSize(5); // 모든 후보가 나오는지 확인
-        assertThat(list.get(0).proposedName).isEqualTo("후보5"); // 최고 득표자 확인
-        assertThat(list.get(0).voteCount).isEqualTo(5);
-        assertThat(list.get(1).proposedName).isEqualTo("후보4");
-        assertThat(list.get(2).proposedName).isEqualTo("후보3");
-        assertThat(list.get(3).proposedName).isEqualTo("후보2");
-        assertThat(list.get(4).proposedName).isEqualTo("후보1");
+        assertThat(list.get(0).getProposedName()).isEqualTo("후보5"); // 최고 득표자 확인
+        assertThat(list.get(0).getVoteCount()).isEqualTo(5);
+        assertThat(list.get(1).getProposedName()).isEqualTo("후보4");
+        assertThat(list.get(2).getProposedName()).isEqualTo("후보3");
+        assertThat(list.get(3).getProposedName()).isEqualTo("후보2");
+        assertThat(list.get(4).getProposedName()).isEqualTo("후보1");
     }
 
     @Test
@@ -121,7 +121,7 @@ class NamingRepositoryTest {
         NameCandidateRes result = candidateRepository.getCandidates(animal.getId(), user.getId());
 
         // then
-        assertThat(result.candidateDtoList.get(0).isVoted).isTrue(); // 투표 여부 확인
+        assertThat(result.getCandidateDtoList().getFirst().isVoted()).isTrue(); // 투표 여부 확인
     }
 
     @Test
@@ -138,6 +138,6 @@ class NamingRepositoryTest {
         NameCandidateRes result = candidateRepository.getCandidates(animal.getId(), null);
 
         // then
-        assertThat(result.candidateDtoList.get(0).isVoted).isFalse();
+        assertThat(result.getCandidateDtoList().getFirst().isVoted()).isFalse();
     }
 }
