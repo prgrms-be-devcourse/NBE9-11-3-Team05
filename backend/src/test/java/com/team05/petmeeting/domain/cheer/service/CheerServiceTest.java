@@ -84,8 +84,8 @@ class CheerServiceTest {
         CheerRes result = cheerService.cheerAnimal(1L, 100L);
 
         // then
-        assertThat(result.animalId()).isEqualTo(100L);
-        assertThat(result.remaingCheersToday()).isEqualTo(4); // 5 - 1
+        assertThat(result.animalId).isEqualTo(100L);
+        assertThat(result.remaingCheersToday).isEqualTo(4); // 5 - 1
         assertThat(testUser.getDailyHeartCount()).isEqualTo(1);
 
         verify(cheerRepository).save(any(Cheer.class));
@@ -145,7 +145,7 @@ class CheerServiceTest {
 
         // 3. Then
         // 응원이 성공하여 남은 횟수가 4가 되어야 함 (5회 중 1회 사용)
-        assertThat(result.remaingCheersToday()).isEqualTo(4);
+        assertThat(result.remaingCheersToday).isEqualTo(4);
 
         // 유저의 상태가 오늘 날짜로 갱신되었는지 확인
         assertThat(testUser.getDailyHeartCount()).isEqualTo(1);
