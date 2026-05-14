@@ -6,6 +6,7 @@ plugins {
     kotlin("plugin.spring") version "2.2.21"
     kotlin("plugin.jpa") version "2.2.21"
     kotlin("kapt") version "2.2.21"
+    kotlin("plugin.lombok") version "2.2.21"
 }
 
 group = "com.team05"
