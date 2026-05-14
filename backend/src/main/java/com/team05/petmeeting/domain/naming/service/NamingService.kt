@@ -11,6 +11,7 @@ import com.team05.petmeeting.domain.naming.dto.NameProposalRes
 import com.team05.petmeeting.domain.naming.entity.AnimalNameCandidate
 import com.team05.petmeeting.domain.naming.entity.BadWord
 import com.team05.petmeeting.domain.naming.entity.NameVoteHistory
+import com.team05.petmeeting.domain.naming.entity.QBadWord.badWord
 import com.team05.petmeeting.domain.naming.errorCode.NamingErrorCode
 import com.team05.petmeeting.domain.naming.repository.AnimalNameCandidateRepository
 import com.team05.petmeeting.domain.naming.repository.NameVoteHistoryRepository
@@ -139,31 +140,25 @@ class NamingService(
         candidate.animal.updateName(candidate.proposedName) // 동물 엔터티 이름 반영
     }
 
-    // 금칙어 관리 (BadWordService를 거쳐 DB와 Redis 동시 처리) - Property 문법 활용
-    val badWords: BadWordListRes
-        get() {
-            val words = badWordService.findAll().map { bw ->
-                BadWordDto(bw.id, bw.word, bw.createdAt.toString())
-            }
-            return BadWordListRes(words, words.size)
+    // 금칙어 관리 (BadWordService를 거쳐 DB와 Redis 동시 처리)
+    fun getBadWords(): BadWordListRes {
+        val words = badWordService.findAll().map { bw ->
+            BadWordDto(bw.id, bw.word, bw.createdAt.toString())
         }
+        return BadWordListRes(words, words.size)
+    }
 
     @Transactional
     fun addBadWord(word: String): BadWordAddRes {
-        val badWord = BadWord(word)
-        badWordService.save(badWord)
-        badWordService.addBadWord(word) // Redis에도 추가
-        return BadWordAddRes(badWord.id, badWord.word, badWord.createdAt)
+        // BadWordService 내부에서 DB 저장 + Redis 추가를 모두 처리하고 저장된 엔티티 반환
+        val savedBadWord = badWordService.register(word)
+        return BadWordAddRes(savedBadWord.id, savedBadWord.word, savedBadWord.createdAt)
     }
 
     @Transactional
     fun deleteBadWord(badwordId: Long) {
-        // 1. DB에서 조회 (findByIdOrNull을 사용하거나 orElseThrow 활용)
-        val badWord = badWordService.findById(badwordId)
-            ?: throw BusinessException(NamingErrorCode.BAD_WORD_NOT_FOUND)
-
-        badWordService.delete(badWord)
-        badWordService.deleteBadWord(badWord.word) // Redis 동기화
+        // BadWordService 내부에서 존재 여부 확인 + DB 삭제 + Redis 제거를 모두 처리
+        badWordService.remove(badwordId)
     }
 
     private fun validateAnimalStatus(animal: Animal) {

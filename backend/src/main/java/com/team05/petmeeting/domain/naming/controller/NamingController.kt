@@ -79,7 +79,7 @@ class NamingController(
     @GetMapping("/admin/badwords")
     @Operation(summary = "금칙어 조회")
     fun getBadWords(): ResponseEntity<BadWordListRes> {
-        val response = namingService.badWords
+        val response = namingService.getBadWords()
         return ResponseEntity.ok(response)
     }
 
