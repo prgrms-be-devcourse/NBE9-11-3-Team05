@@ -4,10 +4,6 @@ import com.team05.petmeeting.domain.campaign.entity.Campaign
 import com.team05.petmeeting.domain.shelter.dto.ShelterCommand
 import com.team05.petmeeting.domain.user.entity.User
 import jakarta.persistence.*
-import lombok.AccessLevel
-import lombok.Builder
-import lombok.Getter
-import lombok.NoArgsConstructor
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -56,7 +52,7 @@ class Shelter (// primary key, from 외부 api
      var updatedAt: LocalDateTime? = null
 
     @OneToMany(mappedBy = "shelter", fetch = FetchType.LAZY)
-     val campaigns: MutableList<Campaign?> = ArrayList<Campaign?>()
+     val campaigns: MutableList<Campaign> = ArrayList()
 
     fun updateFrom(cmd: ShelterCommand) {
         this.careNm = cmd.careNm
