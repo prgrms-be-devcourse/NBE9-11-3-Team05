@@ -60,7 +60,6 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
 
-    implementation("io.github.openfeign.querydsl:querydsl-core:7.1")
     implementation("io.github.openfeign.querydsl:querydsl-jpa:7.1")
     kapt("io.github.openfeign.querydsl:querydsl-apt:7.1:jpa")
 
@@ -71,7 +70,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
     implementation("io.portone:server-sdk:0.23.0")
-
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 }
 
@@ -81,4 +79,10 @@ tasks.withType<Test> {
 
 tasks.withType<JavaCompile> {
     options.generatedSourceOutputDirectory.set(file("build/generated"))
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")            // @Entity가 붙은 클래스는 open
+    annotation("jakarta.persistence.MappedSuperclass")  // 상속용 공통 클래스도 open
+    annotation("jakarta.persistence.Embeddable")        // 값 타입 객체도 open
 }
