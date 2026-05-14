@@ -1,14 +1,17 @@
-package com.team05.petmeeting.domain.naming.errorCode;
+package com.team05.petmeeting.domain.naming.errorCode
 
-import com.team05.petmeeting.global.exception.ErrorCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import com.team05.petmeeting.global.exception.ErrorCode
+import lombok.Getter
+import lombok.RequiredArgsConstructor
+import org.springframework.http.HttpStatus
 
 @Getter
 @RequiredArgsConstructor
-public enum NamingErrorCode implements ErrorCode {
-
+enum class NamingErrorCode(
+    private val status: HttpStatus,
+    private val code: String,
+    private val message: String,
+) : ErrorCode {
     // HttpStatus 객체 사용 및 코드에 식별자(N-) 부여
     BAD_WORD_INCLUDED(HttpStatus.BAD_REQUEST, "N-001", "이름에 부적절한 단어가 포함되어 있습니다."),
     ALREADY_VOTED(HttpStatus.CONFLICT, "N-002", "이미 이 동물의 이름 투표에 참여하셨습니다."),
@@ -20,8 +23,10 @@ public enum NamingErrorCode implements ErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "N-008", "이름 결정 권한이 없습니다."),
     ;
 
-    private final HttpStatus status;
-    private final String code;
-    private final String message;
+    override fun getStatus(): HttpStatus = status
+    override fun getCode(): String = code
+    override fun getMessage(): String = message
+
+
 
 }
