@@ -1,0 +1,72 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-id
+            client-secret: test-secret
+
+jwt:
+  secret: test-secret-key-must-be-at-least-32-characters-long
+  expireMillis: 1800000
+
+animal:
+  api:
+    base-url: https://test.example.com
+    service-key: test-key
+    return-type: json
+    timeout-ms: 5000
+  sync:
+    initial:
+      num-of-rows: 500
+    update:
+      num-of-rows: 500
+      delay-ms: 300
+
+# Meta Ads API 설정
+meta:
+  ads:
+    page-id: test-page-id
+
+# Instagram API 설정
+instagram:
+  user-id: test-instagram-user-id
+  access-token: test-instagram-access-token
+
+# GEMINI_API 설정
+gemini:
+  api:
+    key: test-gemini-key
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+# AWS S3 설정
+cloud:
+  aws:
+    credentials:
+      access-key: dummy-key
+      secret-key: dummy-secret
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: test-bucket-name
+    stack:
+      auto: false
+
+portone:
+  api-secret: test-secret
+  store-id: test-store-id

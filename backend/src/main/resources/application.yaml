@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: pet-meeting
+
+  profiles:
+    active: dev
+
+  output:
+    ansi:
+      enabled: always
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+
+    # db 스키마 자동 생성, 수정 비활성화
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH_GOOGLE_CLIENT_ID}
+            client-secret: ${OAUTH_GOOGLE_PASSWORD}
+            scope:
+              - email
+              - profile
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  
+  main:
+    banner-mode: console
+
+  # Swagger default MediaType 지정
+springdoc:
+  default-produces-media-type: application/json ; charset=UTF-8
+
+  # 로그 향상
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.extract: TRACE
+
+# 유기 동물 API 설정
+animal:
+  api:
+    base-url: ${ANIMAL_API_BASE_URL}
+    service-key: ${ANIMAL_API_SERVICE_KEY}
+    return-type: ${ANIMAL_API_RETURN_TYPE:json}
+    timeout-ms: ${ANIMAL_API_TIMEOUT_MS:5000}
+  sync:
+    initial:
+      num-of-rows: ${ANIMAL_SYNC_INITIAL_NUM_OF_ROWS:500}
+    update:
+      num-of-rows: ${ANIMAL_SYNC_UPDATE_NUM_OF_ROWS:500}
+      delay-ms: ${ANIMAL_SYNC_UPDATE_DELAY_MS:300}
+
+# jwt access token 관련 설정
+jwt:
+  secret: ${JWT_SECRET}
+  expireMillis: ${JWT_EXPIREMILLIS}
+
+# Meta Ads API 설정
+meta:
+  ads:
+    page-id: ${META_PAGE_ID}
+
+# Instagram API 설정
+instagram:
+  user-id: ${INSTAGRAM_USER_ID}
+  access-token: ${INSTAGRAM_ACCESS_TOKEN}
+
+# GEMINI_API 설정
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+
+portone:
+  api-secret: ${PORTONE_SECRET_KEY}
+  store-id: ${PORTONE_STORE_ID}
