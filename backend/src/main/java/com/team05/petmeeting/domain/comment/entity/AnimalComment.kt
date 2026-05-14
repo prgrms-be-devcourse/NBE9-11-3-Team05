@@ -4,10 +4,6 @@ import com.team05.petmeeting.domain.animal.entity.Animal
 import com.team05.petmeeting.domain.user.entity.User
 import com.team05.petmeeting.global.entity.BaseEntity
 import jakarta.persistence.*
-import lombok.AccessLevel
-import lombok.Builder
-import lombok.Getter
-import lombok.NoArgsConstructor
 
 @Entity
 @Table(name = "animal_comments")
