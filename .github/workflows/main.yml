@@ -18,6 +18,10 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - uses: gradle/actions/setup-gradle@v3
+      - name: Grant execute permission
+        run: chmod +x gradlew
+        working-directory: backend
 
-      - run: ./gradlew test
+      - name: Run tests
+        run: ./gradlew test
+        working-directory: backend
