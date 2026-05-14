@@ -7,14 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
-import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartReq;
-import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
-import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes.NextStep;
-import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyReq;
-import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
-import com.team05.petmeeting.domain.user.dto.login.local.EmailLoginReq;
+import com.team05.petmeeting.domain.user.dto.auth.emailsignup.EmailSignupReq;
+import com.team05.petmeeting.domain.user.dto.auth.emailstart.EmailStartReq;
+import com.team05.petmeeting.domain.user.dto.auth.emailstart.EmailStartRes;
+import com.team05.petmeeting.domain.user.dto.auth.emailstart.EmailStartRes.NextStep;
+import com.team05.petmeeting.domain.user.dto.auth.emailverify.EmailVerifyReq;
+import com.team05.petmeeting.domain.user.dto.auth.login.AccessTokenRes;
+import com.team05.petmeeting.domain.user.dto.auth.login.LoginAndRefreshRes;
+import com.team05.petmeeting.domain.user.dto.auth.login.local.EmailLoginReq;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
 import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
 import com.team05.petmeeting.global.security.util.JwtUtil;

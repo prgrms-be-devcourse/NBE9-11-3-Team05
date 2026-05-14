@@ -1,4 +1,4 @@
-package com.team05.petmeeting.domain.user.dto.emailsignup
+package com.team05.petmeeting.domain.user.dto.auth.emailsignup
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
