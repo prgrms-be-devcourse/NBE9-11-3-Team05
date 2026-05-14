@@ -6,7 +6,7 @@ import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
 import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyReq;
 import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyRes;
 import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.dto.login.local.EmailLoginReq;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
@@ -63,12 +63,12 @@ public class UserAuthController {
             @Valid @RequestBody EmailSignupReq request,
             HttpServletResponse response
     ) {
-        LoginAndRefreshResult result = userAuthService.signupAndLoginWithEmail(request);
+        LoginAndRefreshRes result = userAuthService.signupAndLoginWithEmail(request);
 
-        refreshTokenUtil.add(response, result.refreshToken());
+        refreshTokenUtil.add(response, result.getRefreshToken());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(result.accessTokenRes());
+                .body(result.getAccessTokenRes());
     }
 
     @PostMapping("/email/login")
@@ -76,14 +76,14 @@ public class UserAuthController {
             @Valid @RequestBody EmailLoginReq request,
             HttpServletResponse response
     ) {
-        LoginAndRefreshResult result = userAuthService.loginWithEmail(
-                request.email(),
-                request.password()
+        LoginAndRefreshRes result = userAuthService.loginWithEmail(
+                request.getEmail(),
+                request.getPassword()
         );
 
-        refreshTokenUtil.add(response, result.refreshToken());
+        refreshTokenUtil.add(response, result.getRefreshToken());
 
-        return ResponseEntity.ok(result.accessTokenRes());
+        return ResponseEntity.ok(result.getAccessTokenRes());
     }
 
     // 로그아웃
@@ -104,12 +104,12 @@ public class UserAuthController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        LoginAndRefreshResult result = userAuthService.refresh(request);
+        LoginAndRefreshRes result = userAuthService.refresh(request);
 
         // refresh token 재설정 (rotate)
-        refreshTokenUtil.add(response, result.refreshToken());
+        refreshTokenUtil.add(response, result.getRefreshToken());
 
-        return ResponseEntity.ok(result.accessTokenRes());
+        return ResponseEntity.ok(result.getAccessTokenRes());
     }
 
     // 탈퇴

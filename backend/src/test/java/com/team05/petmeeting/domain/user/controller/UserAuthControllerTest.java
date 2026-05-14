@@ -13,7 +13,7 @@ import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
 import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes.NextStep;
 import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyReq;
 import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
+import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.dto.login.local.EmailLoginReq;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
 import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
@@ -97,8 +97,8 @@ class UserAuthControllerTest {
         EmailSignupReq req = new EmailSignupReq(verificationToken, "Password12!", "nickname", "realname");
 
         AccessTokenRes accessToken = new AccessTokenRes("Bearer", "access-token");
-        LoginAndRefreshResult result =
-                new LoginAndRefreshResult("refreshToken", accessToken);
+        LoginAndRefreshRes result =
+                new LoginAndRefreshRes("refreshToken", accessToken);
 
         Mockito.when(userAuthService.signupAndLoginWithEmail(any()))
                 .thenReturn(result);
@@ -116,8 +116,8 @@ class UserAuthControllerTest {
         EmailLoginReq req = new EmailLoginReq("test@test.com", "Password12!");
 
         AccessTokenRes accessToken = new AccessTokenRes("Bearer", "access-token");
-        LoginAndRefreshResult result =
-                new LoginAndRefreshResult("refershToken", accessToken);
+        LoginAndRefreshRes result =
+                new LoginAndRefreshRes("refershToken", accessToken);
 
         Mockito.when(userAuthService.loginWithEmail(anyString(), anyString()))
                 .thenReturn(result);
@@ -140,8 +140,8 @@ class UserAuthControllerTest {
     @DisplayName("토큰 재발급 - 성공")
     void refresh() throws Exception {
         AccessTokenRes accessToken = new AccessTokenRes("Bearer", "new-access");
-        LoginAndRefreshResult result =
-                new LoginAndRefreshResult("refreshToken", accessToken);
+        LoginAndRefreshRes result =
+                new LoginAndRefreshRes("refreshToken", accessToken);
 
         Mockito.when(userAuthService.refresh(any()))
                 .thenReturn(result);
