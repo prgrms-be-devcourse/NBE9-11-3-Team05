@@ -8,29 +8,29 @@ import com.team05.petmeeting.domain.cheer.errorCode.CheerErrorCode;
 import com.team05.petmeeting.domain.cheer.service.CheerService;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
 import com.team05.petmeeting.global.exception.BusinessException;
+import com.team05.petmeeting.global.security.handler.JwtAuthenticationEntryPoint;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
+import com.team05.petmeeting.global.security.util.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
+@WebMvcTest(CheerController.class)
 @ActiveProfiles("test")
 public class CheerControllerTest {
 
@@ -39,6 +39,13 @@ public class CheerControllerTest {
 
     @MockitoBean
     private CheerService cheerService;
+
+    // 추가: 보안 필터가 요구하는 JwtUtil을 가짜 빈으로 등록
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private final Long userId = 1L; // 필드로 선언하면 헬퍼 메서드에서 공유 가능
 
@@ -65,6 +72,7 @@ public class CheerControllerTest {
     }
 
     @Test
+    @WithMockUser // 기본적으로 'ROLE_USER' 권한을 가진 가짜 사용자를 세팅해줍니다.
     @DisplayName("응원 부여 - 성공")
     void cheerAnimal_success() throws Exception {
         // given
@@ -75,6 +83,7 @@ public class CheerControllerTest {
         // when & then
         mockMvc.perform(post("/api/v1/animals/{animalId}/cheers", animalId)
                         .with(SecurityMockMvcRequestPostProcessors.authentication(auth())) // 재사용
+                        .with(csrf()) // csrf() 주입
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.animalId").value(animalId));
@@ -92,6 +101,7 @@ public class CheerControllerTest {
         // when & then
         mockMvc.perform(post("/api/v1/animals/{animalId}/cheers", animalId)
                         .with(SecurityMockMvcRequestPostProcessors.authentication(auth()))
+                        .with(csrf()) // csrf() 주입
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound()) // 404 에러 (UserErrorCode 설정에 따름)
                 .andExpect(jsonPath("$.code").value("U-004")); // 실제 프로젝트의 에러코드 값으로 수정
@@ -108,6 +118,7 @@ public class CheerControllerTest {
         // when & then
         mockMvc.perform(post("/api/v1/animals/{animalId}/cheers", animalId)
                         .with(SecurityMockMvcRequestPostProcessors.authentication(auth()))
+                        .with(csrf()) // csrf() 주입
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("A-001")); // 실제 프로젝트의 에러코드 값으로 수정
@@ -124,6 +135,7 @@ public class CheerControllerTest {
         // when & then
         mockMvc.perform(post("/api/v1/animals/{animalId}/cheers", animalId)
                         .with(SecurityMockMvcRequestPostProcessors.authentication(auth()))
+                        .with(csrf()) // csrf() 주입
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()) // 400 에러
                 .andExpect(jsonPath("$.code").value("CH-001")); // 실제 프로젝트의 에러코드 값으로 수정
