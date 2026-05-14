@@ -131,7 +131,7 @@ class UserAuthServiceTest {
 
         LoginAndRefreshRes result = userAuthService.signupAndLoginWithEmail(request);
 
-        assertThat(result.accessTokenRes.accessToken).isEqualTo("accessToken");
+        assertThat(result.getAccessTokenRes().getAccessToken()).isEqualTo("accessToken");
         verify(otpService).clearVerifiedByToken(token);
     }
 
@@ -179,7 +179,7 @@ class UserAuthServiceTest {
 
         LoginAndRefreshRes result = userAuthService.loginWithEmail(email, "pw");
 
-        assertThat(result.accessTokenRes.accessToken).isEqualTo("accessToken");
+        assertThat(result.getAccessTokenRes().getAccessToken()).isEqualTo("accessToken");
         verify(refreshTokenRepository).save(any());
     }
 
@@ -241,7 +241,7 @@ class UserAuthServiceTest {
 
         LoginAndRefreshRes result = userAuthService.refresh(request);
 
-        assertThat(result.accessTokenRes.accessToken).isEqualTo("newAccess");
+        assertThat(result.getAccessTokenRes().getAccessToken()).isEqualTo("newAccess");
         verify(refreshTokenRepository).delete(saved);
         verify(refreshTokenRepository).save(any());
     }
