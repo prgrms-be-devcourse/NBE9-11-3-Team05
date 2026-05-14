@@ -14,15 +14,15 @@ enum class CommentErrorCode(
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C-003", "존재하지 않거나 이미 삭제된 댓글입니다."),
     ;
 
-    override fun getStatus(): HttpStatus? {
+    override fun getStatus(): HttpStatus {
         return this.status
     }
 
-    override fun getCode(): String? {
+    override fun getCode(): String {
         return this.code
     }
 
-    override fun getMessage(): String? {
+    override fun getMessage(): String {
         return this.message
     }
 }
