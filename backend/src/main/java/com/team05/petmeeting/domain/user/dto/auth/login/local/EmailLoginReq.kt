@@ -1,4 +1,4 @@
-package com.team05.petmeeting.domain.user.dto.login.local
+package com.team05.petmeeting.domain.user.dto.auth.login.local
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank

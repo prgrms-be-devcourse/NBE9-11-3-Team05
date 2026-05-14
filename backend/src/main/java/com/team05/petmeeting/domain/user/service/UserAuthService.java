@@ -2,11 +2,11 @@ package com.team05.petmeeting.domain.user.service;
 
 import static com.team05.petmeeting.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME;
 
-import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
-import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
-import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes.NextStep;
-import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshRes;
+import com.team05.petmeeting.domain.user.dto.auth.emailsignup.EmailSignupReq;
+import com.team05.petmeeting.domain.user.dto.auth.emailstart.EmailStartRes;
+import com.team05.petmeeting.domain.user.dto.auth.emailstart.EmailStartRes.NextStep;
+import com.team05.petmeeting.domain.user.dto.auth.login.AccessTokenRes;
+import com.team05.petmeeting.domain.user.dto.auth.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;

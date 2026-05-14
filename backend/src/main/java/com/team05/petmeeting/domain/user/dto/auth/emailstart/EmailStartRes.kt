@@ -1,4 +1,4 @@
-package com.team05.petmeeting.domain.user.dto.emailstart
+package com.team05.petmeeting.domain.user.dto.auth.emailstart
 
 data class EmailStartRes(
     val exists: Boolean,
