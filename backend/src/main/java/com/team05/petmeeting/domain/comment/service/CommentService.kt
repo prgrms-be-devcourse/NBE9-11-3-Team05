@@ -48,7 +48,7 @@ class CommentService(
     }
 
     @Transactional
-    fun updateAnimalComment(userId: Long, commentId: Long, @Valid commentReq: @Valid CommentReq): AnimalCommentRes {
+    fun updateAnimalComment(userId: Long, commentId: Long, @Valid commentReq: CommentReq): AnimalCommentRes {
         val comment = animalCommentRepository.findById(commentId)
             .orElseThrow<BusinessException?>(Supplier { BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) })
         validateAnimalCommentAuthor(userId, comment)
@@ -57,7 +57,7 @@ class CommentService(
     }
 
     @Transactional
-    fun updateFeedComment(userId: Long, commentId: Long, @Valid commentReq: @Valid CommentReq): FeedCommentRes {
+    fun updateFeedComment(userId: Long, commentId: Long, @Valid commentReq: CommentReq): FeedCommentRes {
         val comment = feedCommentRepository.findById(commentId)
             .orElseThrow<BusinessException?>(Supplier { BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) })
         validateFeedCommentAuthor(userId, comment)
