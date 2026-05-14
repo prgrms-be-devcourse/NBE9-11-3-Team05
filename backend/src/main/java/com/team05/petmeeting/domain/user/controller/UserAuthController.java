@@ -54,7 +54,7 @@ public class UserAuthController {
     public ResponseEntity<EmailVerifyRes> verifyEmail(
             @Valid @RequestBody EmailVerifyReq request
     ) {
-        String verifyToken = userAuthService.verifyOtp(request.email(), request.code());
+        String verifyToken = userAuthService.verifyOtp(request.getEmail(), request.getCode());
         return ResponseEntity.ok(new EmailVerifyRes(verifyToken));
     }
 
