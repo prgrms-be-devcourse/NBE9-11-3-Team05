@@ -60,8 +60,10 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
 
-    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
-    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    implementation("io.github.openfeign.querydsl:querydsl-core:7.1")
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.1")
+    kapt("io.github.openfeign.querydsl:querydsl-apt:7.1:jpa")
+
     kapt("jakarta.annotation:jakarta.annotation-api")
     kapt("jakarta.persistence:jakarta.persistence-api")
 
