@@ -11,7 +11,6 @@ import com.team05.petmeeting.domain.naming.dto.NameProposalRes
 import com.team05.petmeeting.domain.naming.entity.AnimalNameCandidate
 import com.team05.petmeeting.domain.naming.entity.BadWord
 import com.team05.petmeeting.domain.naming.entity.NameVoteHistory
-import com.team05.petmeeting.domain.naming.entity.QBadWord.badWord
 import com.team05.petmeeting.domain.naming.errorCode.NamingErrorCode
 import com.team05.petmeeting.domain.naming.repository.AnimalNameCandidateRepository
 import com.team05.petmeeting.domain.naming.repository.NameVoteHistoryRepository
