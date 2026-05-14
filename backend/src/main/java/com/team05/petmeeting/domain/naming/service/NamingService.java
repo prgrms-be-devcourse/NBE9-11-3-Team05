@@ -121,7 +121,7 @@ public class NamingService {
         // (쿼리에서 voteCount.desc()로 정렬했으므로 첫 번째 값만 취하면 됨)
         Map<Long, NameCandidateRes.CandidateDto> topCandidatePerAnimal = allQualified.stream()
                 .collect(Collectors.toMap(
-                        dto -> dto.animalId(), // CandidateDto에 animalId 필드 추가 권장
+                        dto -> dto.animalId, // CandidateDto에 animalId 필드 추가 권장
                         dto -> dto,
                         (existing, replacement) -> existing // 이미 들어가 있으면(득표수 높은 것) 유지
                 ));

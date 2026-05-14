@@ -88,7 +88,7 @@ class NamingServiceTest {
         NameProposalRes response = namingService.proposeName(100L, 1L, proposedName);
 
         // then
-        assertThat(response.proposedName()).isEqualTo(proposedName);
+        assertThat(response.proposedName).isEqualTo(proposedName);
         verify(candidateRepository, times(1)).save(any(AnimalNameCandidate.class));
         verify(voteHistoryRepository, times(1)).save(any(NameVoteHistory.class));
     }
