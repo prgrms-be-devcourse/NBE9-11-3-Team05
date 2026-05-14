@@ -38,7 +38,7 @@ public class UserAuthController {
     public ResponseEntity<EmailStartRes> startEmail(
             @RequestBody @Valid EmailStartReq request
     ) {
-        EmailStartRes res = userAuthService.startEmailFlow(request.email());
+        EmailStartRes res = userAuthService.startEmailFlow(request.getEmail());
         return ResponseEntity.ok(res);
     }
 
@@ -46,7 +46,7 @@ public class UserAuthController {
     public ResponseEntity<Void> sendEmail(
             @RequestBody @Valid EmailStartReq request
     ) {
-        userAuthService.sendSignupOtp(request.email());
+        userAuthService.sendSignupOtp(request.getEmail());
         return ResponseEntity.noContent().build();
     }
 
