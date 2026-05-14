@@ -1,13 +1,13 @@
 package com.team05.petmeeting.domain.user.controller;
 
 import com.team05.petmeeting.domain.donation.service.DonationService;
-import com.team05.petmeeting.domain.user.dto.profile.*;
 import com.team05.petmeeting.domain.user.dto.profile.MyProfileDetailRes;
 import com.team05.petmeeting.domain.user.dto.profile.NicknameReq;
 import com.team05.petmeeting.domain.user.dto.profile.PasswordReq;
 import com.team05.petmeeting.domain.user.dto.profile.ProfileImgReq;
 import com.team05.petmeeting.domain.user.dto.profile.UserAnimalCommentRes;
 import com.team05.petmeeting.domain.user.dto.profile.UserCheerAnimalRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserDonationRes;
 import com.team05.petmeeting.domain.user.dto.profile.UserFeedCommentRes;
 import com.team05.petmeeting.domain.user.dto.profile.UserFeedRes;
 import com.team05.petmeeting.domain.user.dto.profile.UserProfileRes;
@@ -42,7 +42,7 @@ public class UserProfileController {
             @Valid @RequestBody NicknameReq req
     ) {
         Long userId = userDetails.getUserId();
-        UserProfileRes res = userProfileService.modifyNickname(userId, req.nickname());
+        UserProfileRes res = userProfileService.modifyNickname(userId, req.getNickname());
         return ResponseEntity.ok(res);
     }
 
@@ -53,7 +53,7 @@ public class UserProfileController {
             @RequestBody ProfileImgReq req
     ) {
         Long userId = userDetails.getUserId();
-        UserProfileRes res = userProfileService.modifyProfileImageUrl(userId, req.profileImageUrl());
+        UserProfileRes res = userProfileService.modifyProfileImageUrl(userId, req.getProfileImageUrl());
         return ResponseEntity.ok(res);
     }
 
@@ -64,7 +64,7 @@ public class UserProfileController {
             @Valid @RequestBody PasswordReq req
     ) {
         Long userId = userDetails.getUserId();
-        userProfileService.modifyPassword(userId, req.currentPassword(), req.newPassword());
+        userProfileService.modifyPassword(userId, req.getCurrentPassword(), req.getNewPassword());
         return ResponseEntity.noContent().build();
     }
 
@@ -91,7 +91,7 @@ public class UserProfileController {
     @GetMapping("/comments/feeds")
     public ResponseEntity<UserFeedCommentRes> feedComments(
             @AuthenticationPrincipal CustomUserDetails userDetails
-    ){
+    ) {
         Long userId = userDetails.getUserId();
         UserFeedCommentRes res = userProfileService.getMyFeedComments(userId);
         return ResponseEntity.ok(res);
@@ -101,7 +101,7 @@ public class UserProfileController {
     @GetMapping("/comments/animals")
     public ResponseEntity<UserAnimalCommentRes> animalComments(
             @AuthenticationPrincipal CustomUserDetails userDetails
-    ){
+    ) {
         Long userId = userDetails.getUserId();
         UserAnimalCommentRes res = userProfileService.getMyAnimalComments(userId);
         return ResponseEntity.ok(res);
@@ -128,18 +128,17 @@ public class UserProfileController {
     @GetMapping("/summary")
     public ResponseEntity<UserSummaryRes> getSummary(
             @AuthenticationPrincipal CustomUserDetails userDetails
-    )
-    {
+    ) {
         Long userId = userDetails.getUserId();
         UserSummaryRes res = userProfileService.getUserSummary(userId);
         return ResponseEntity.ok(res);
     }
 
-    @Operation(summary="사용자 후원 목록 조회")
+    @Operation(summary = "사용자 후원 목록 조회")
     @GetMapping("/donations")
     public ResponseEntity<UserDonationRes> getDonations(
             @AuthenticationPrincipal CustomUserDetails userDetails
-    ){
+    ) {
         Long userId = userDetails.getUserId();
         UserDonationRes res = donationService.getMyDonations(userId);
         return ResponseEntity.ok(res);

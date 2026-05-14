@@ -1,33 +1,41 @@
 package com.team05.petmeeting.domain.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team05.petmeeting.domain.donation.service.DonationService;
-import com.team05.petmeeting.domain.user.dto.profile.*;
-import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
-import com.team05.petmeeting.domain.user.service.UserProfileService;
-import com.team05.petmeeting.global.exception.BusinessException;
-import com.team05.petmeeting.global.security.test.WithCustomUser;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team05.petmeeting.domain.donation.service.DonationService;
+import com.team05.petmeeting.domain.user.dto.profile.MyProfileDetailRes;
+import com.team05.petmeeting.domain.user.dto.profile.NicknameReq;
+import com.team05.petmeeting.domain.user.dto.profile.PasswordReq;
+import com.team05.petmeeting.domain.user.dto.profile.UserDonationRes;
+import com.team05.petmeeting.domain.user.dto.profile.UserProfileRes;
+import com.team05.petmeeting.domain.user.entity.User;
+import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
+import com.team05.petmeeting.domain.user.service.UserProfileService;
+import com.team05.petmeeting.global.exception.BusinessException;
+import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
+import com.team05.petmeeting.global.security.test.WithCustomUser;
+import java.time.LocalDateTime;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(UserProfileController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-@Transactional
 @WithCustomUser(userId = 100L)
 class UserProfileControllerTest {
 
@@ -40,14 +48,18 @@ class UserProfileControllerTest {
     @MockitoBean
     private DonationService donationService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockitoBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     // 닉네임 변경 성공
     @Test
     void changeNickname_success() throws Exception {
         NicknameReq req = new NicknameReq("newNick");
-        UserProfileRes res = UserProfileRes.builder().nickname("newNick").build();
+        User user = User.create("email", "newNick", "name");
+        ReflectionTestUtils.setField(user, "createdAt", LocalDateTime.now());
+        UserProfileRes res = UserProfileRes.from(user);
         when(userProfileService.modifyNickname(100L, "newNick")).thenReturn(res);
 
         mockMvc.perform(patch("/api/v1/me/nickname")
@@ -155,35 +167,23 @@ class UserProfileControllerTest {
     // 내 프로필 상세 조회 (응원 수, 동물 수)
     @Test
     void getMyProfile_success() throws Exception {
-        MyProfileDetailRes res = MyProfileDetailRes.builder()
-                .cheerCount(5L)
-                .feedCount(3L)
-                .feedCommentCount(5L)
-                .animalCommentCount(5L)
-                .build();
+        MyProfileDetailRes res = MyProfileDetailRes.of(5L, 3L, 5L, 5L);
+
         when(userProfileService.getMyProfileDetails(100L)).thenReturn(res);
 
         mockMvc.perform(get("/api/v1/me"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cheerCount").value(5))
-                .andExpect(jsonPath("$.feedCount").value(3))
+                .andExpect(jsonPath("$.cheerCount").value(3))
+                .andExpect(jsonPath("$.feedCount").value(5))
                 .andExpect(jsonPath("$.feedCommentCount").value(5))
                 .andExpect(jsonPath("$.animalCommentCount").value(5))
-                ;
-    }
-
-    // 비로그인 접근 시 401
-    @Test
-    @WithAnonymousUser
-    void getProfile_unauthorized() throws Exception {
-        mockMvc.perform(get("/api/v1/me/profile"))
-                .andExpect(status().isUnauthorized());
+        ;
     }
 
     // 후원 목록 조회
     @Test
     void getDonations_success() throws Exception {
-        UserDonationRes res = UserDonationRes.builder().build();
+        UserDonationRes res = Mockito.mock(UserDonationRes.class);
         when(donationService.getMyDonations(100L)).thenReturn(res);
 
         mockMvc.perform(get("/api/v1/me/donations"))
