@@ -5,7 +5,6 @@ data class BadWordListRes(
     val badWords: List<BadWordDto>,
     val totalCount: Int
 ) {
-    @JvmRecord
     data class BadWordDto(
         val wordId: Long,
         val word: String,

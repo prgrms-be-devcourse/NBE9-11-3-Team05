@@ -3,7 +3,7 @@ package com.team05.petmeeting.domain.naming.dto
 // 후보 목록 반환 DTO
 data class NameCandidateRes(
     val animalId: Long,
-    val animalName: String,
+    val animalName: String?,
     val candidateDtoList: List<CandidateDto>,
     val totalCandidates: Int
 ) {

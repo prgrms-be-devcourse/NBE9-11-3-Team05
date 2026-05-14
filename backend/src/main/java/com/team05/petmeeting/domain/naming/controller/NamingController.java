@@ -53,7 +53,7 @@ public class NamingController { // 제안/투표/후보조회 API
             @Valid @RequestBody NameProposalReq request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        NameProposalRes response = namingService.proposeName(animalId, userDetails.getUserId(), request.proposedName);
+        NameProposalRes response = namingService.proposeName(animalId, userDetails.getUserId(), request.getProposedName());
         return ResponseEntity.ok(response);
     }
 
@@ -92,7 +92,7 @@ public class NamingController { // 제안/투표/후보조회 API
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         // 관리자 권한 검증 로직은 Security나 Service에서 수행
-        BadWordAddRes response = namingService.addBadWord(request.badWord);
+        BadWordAddRes response = namingService.addBadWord(request.getBadWord());
         return ResponseEntity.ok(response);
     }
 
