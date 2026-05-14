@@ -97,7 +97,7 @@ public class UserAuthService {
     public LoginAndRefreshResult signupAndLoginWithEmail(EmailSignupReq request) {
 
         // verification token으로 email 조회
-        String email = otpService.getEmailByVerifyToken(request.verificationToken())
+        String email = otpService.getEmailByVerifyToken(request.getVerificationToken())
                 .orElseThrow(() -> new BusinessException(UserErrorCode.INVALID_VERIFICATION_TOKEN));
 
         // 이미 가입된 이메일인지 체크
@@ -106,13 +106,13 @@ public class UserAuthService {
         }
 
         // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(request.password());
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         // User 생성
         User user = User.create(
                 email,
-                request.nickname(),
-                request.realname()
+                request.getNickname(),
+                request.getRealname()
         );
 
         // UserAuth 추가 (LOCAL)
@@ -123,7 +123,7 @@ public class UserAuthService {
         User savedUser = userRepository.save(user);
 
         // 6. verification token 제거 (재사용 방지)
-        otpService.clearVerifiedByToken(request.verificationToken());
+        otpService.clearVerifiedByToken(request.getVerificationToken());
 
         return issueToken(savedUser);
     }
