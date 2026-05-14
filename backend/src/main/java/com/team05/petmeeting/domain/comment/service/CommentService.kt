@@ -34,7 +34,7 @@ class CommentService(
     fun createAnimalComment(userId: Long, animalId: Long, commentReq: CommentReq): AnimalCommentRes {
         val user = getUserOrThrow(userId)
         val animal = animalService.findByAnimalId(animalId)
-        val comment = AnimalComment.create(user, animal, commentReq.content!!)
+        val comment = AnimalComment.create(user, animal, commentReq.content)
         return from(animalCommentRepository.save<AnimalComment>(comment))
     }
 
