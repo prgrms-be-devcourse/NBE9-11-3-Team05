@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
 import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartReq;
 import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
+import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes.NextStep;
 import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyReq;
 import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
 import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
@@ -51,7 +52,7 @@ class UserAuthControllerTest {
     @DisplayName("이메일 시작 - 성공")
     void startEmail() throws Exception {
         EmailStartReq req = new EmailStartReq("test@test.com");
-        EmailStartRes res = new EmailStartRes(true, null);
+        EmailStartRes res = new EmailStartRes(true, NextStep.SIGNUP_WITH_OTP);
 
         Mockito.when(userAuthService.startEmailFlow(anyString()))
                 .thenReturn(res);
