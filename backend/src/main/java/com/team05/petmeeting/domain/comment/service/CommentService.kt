@@ -59,7 +59,7 @@ class CommentService(
     @Transactional
     fun updateFeedComment(userId: Long, commentId: Long, @Valid commentReq: CommentReq): FeedCommentRes {
         val comment = feedCommentRepository.findById(commentId)
-            .orElseThrow<BusinessException?>(Supplier { BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) })
+            .orElseThrow { BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) }
         validateFeedCommentAuthor(userId, comment)
         comment.updateContent(commentReq.content)
         return FeedCommentRes.from(feedCommentRepository.save(comment))
@@ -68,7 +68,7 @@ class CommentService(
     @Transactional
     fun deleteAnimalComment(userId: Long, commentId: Long) {
         val comment = animalCommentRepository.findById(commentId)
-            .orElseThrow<BusinessException?>(Supplier { BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) })
+            .orElseThrow{ BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) }
         validateAnimalCommentAuthor(userId, comment)
         animalCommentRepository.delete(comment)
     }
@@ -76,14 +76,14 @@ class CommentService(
     @Transactional
     fun deleteFeedComment(userId: Long, commentId: Long) {
         val comment = feedCommentRepository.findById(commentId)
-            .orElseThrow<BusinessException?>(Supplier { BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) })
+            .orElseThrow{ BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) }
         validateFeedCommentAuthor(userId, comment)
         feedCommentRepository.delete(comment)
     }
 
     fun getAnimalComments(animalId: Long): List<AnimalCommentRes> {
         return animalCommentRepository.findByAnimal_Id(animalId)
-            .map { animalComment -> AnimalCommentRes.from(animalComment) }
+            .map { animalComment -> from(animalComment) }
     }
 
     fun getFeedComments(feedId: Long): List<FeedCommentRes> {
@@ -93,7 +93,7 @@ class CommentService(
 
     private fun getUserOrThrow(userId: Long): User {
         return userRepository.findById(userId)
-            .orElseThrow<BusinessException?>(Supplier { BusinessException(UserErrorCode.USER_NOT_FOUND) })
+            .orElseThrow { BusinessException(UserErrorCode.USER_NOT_FOUND) }
     }
 
     private fun validateAnimalCommentAuthor(userId: Long, comment: AnimalComment) {
