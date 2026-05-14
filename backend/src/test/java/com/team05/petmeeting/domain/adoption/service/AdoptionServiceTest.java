@@ -6,9 +6,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.team05.petmeeting.domain.adoption.dto.request.AdoptionApplyRequest;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyReq;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 // 일반 사용자가 입양 신청서를 조회, 제출, 취소하는 서비스 흐름을 검증한다.
@@ -57,7 +56,7 @@ class AdoptionServiceTest {
         when(adoptionApplicationRepository.findByUser_Id(user.getId()))
                 .thenReturn(List.of(application));
 
-        List<AdoptionApplyResponse> responses = adoptionService.getMyAdoptions(user.getId());
+        List<AdoptionApplyRes> responses = adoptionService.getMyAdoptions(user.getId());
 
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).getApplicationId()).isEqualTo(100L);
@@ -75,7 +74,7 @@ class AdoptionServiceTest {
         when(adoptionApplicationRepository.findByIdAndUser_Id(application.getId(), user.getId()))
                 .thenReturn(Optional.of(application));
 
-        AdoptionDetailResponse response = adoptionService.getApplicationDetail(user.getId(), application.getId());
+        AdoptionDetailRes response = adoptionService.getApplicationDetail(user.getId(), application.getId());
 
         assertThat(response.getApplicationId()).isEqualTo(100L);
         assertThat(response.getStatus()).isEqualTo(AdoptionStatus.Processing);
@@ -104,7 +103,7 @@ class AdoptionServiceTest {
         // 중복 신청 여부를 확인한 뒤 사용자와 동물이 모두 존재할 때 신청서를 저장한다.
         User user = createUser(1L);
         Animal animal = createAnimal(10L, "A-001");
-        AdoptionApplyRequest request = createApplyRequest("가족으로 맞이하고 싶습니다.", "010-9999-8888");
+        AdoptionApplyReq request = createApplyRequest("가족으로 맞이하고 싶습니다.", "010-9999-8888");
         when(adoptionApplicationRepository.existsByUser_IdAndAnimal_Id(user.getId(), animal.getId()))
                 .thenReturn(false);
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
@@ -116,7 +115,7 @@ class AdoptionServiceTest {
                     return saved;
                 });
 
-        AdoptionApplyResponse response = adoptionService.applyApplication(user.getId(), animal.getId(), request);
+        AdoptionApplyRes response = adoptionService.applyApplication(user.getId(), animal.getId(), request);
 
         assertThat(response.getApplicationId()).isEqualTo(100L);
         assertThat(response.getStatus()).isEqualTo(AdoptionStatus.Processing);
@@ -131,7 +130,11 @@ class AdoptionServiceTest {
         when(adoptionApplicationRepository.existsByUser_IdAndAnimal_Id(1L, 10L))
                 .thenReturn(true);
 
-        assertThatThrownBy(() -> adoptionService.applyApplication(1L, 10L, createApplyRequest()))
+        assertThatThrownBy(() -> adoptionService.applyApplication(
+                1L,
+                10L,
+                createApplyRequest("입양하고 싶습니다.", "010-1234-5678")
+        ))
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
                 .isEqualTo(AdoptionErrorCode.ALREADY_APPLIED);
@@ -145,7 +148,11 @@ class AdoptionServiceTest {
                 .thenReturn(false);
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> adoptionService.applyApplication(1L, 10L, createApplyRequest()))
+        assertThatThrownBy(() -> adoptionService.applyApplication(
+                1L,
+                10L,
+                createApplyRequest("입양하고 싶습니다.", "010-1234-5678")
+        ))
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
                 .isEqualTo(UserErrorCode.USER_NOT_FOUND);
@@ -160,7 +167,11 @@ class AdoptionServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(animalRepository.findById(10L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> adoptionService.applyApplication(1L, 10L, createApplyRequest()))
+        assertThatThrownBy(() -> adoptionService.applyApplication(
+                1L,
+                10L,
+                createApplyRequest("입양하고 싶습니다.", "010-1234-5678")
+        ))
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
                 .isEqualTo(AnimalErrorCode.ANIMAL_NOT_FOUND);
@@ -226,16 +237,8 @@ class AdoptionServiceTest {
         return application;
     }
 
-    private AdoptionApplyRequest createApplyRequest() {
-        return createApplyRequest("입양하고 싶습니다.", "010-1234-5678");
-    }
-
-    private AdoptionApplyRequest createApplyRequest(String applyReason, String applyTel) {
-        // 요청 DTO는 기본 생성자와 getter만 있어 테스트에서는 필드를 직접 세팅한다.
-        AdoptionApplyRequest request = new AdoptionApplyRequest();
-        ReflectionTestUtils.setField(request, "applyReason", applyReason);
-        ReflectionTestUtils.setField(request, "applyTel", applyTel);
-        return request;
+    private AdoptionApplyReq createApplyRequest(String applyReason, String applyTel) {
+        return new AdoptionApplyReq(applyReason, applyTel);
     }
 
     private void setId(BaseEntity entity, Long id) throws Exception {
