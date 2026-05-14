@@ -1,8 +1,8 @@
 package com.team05.petmeeting.domain.adoption.controller;
 
-import com.team05.petmeeting.domain.adoption.dto.request.AdoptionApplyRequest;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyReq;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes;
 import com.team05.petmeeting.domain.adoption.service.AdoptionService;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class AdoptionController {
 
     // 로그인한 사용자의 입양 신청 목록을 조회한다.
     @GetMapping("/me")
-    public List<AdoptionApplyResponse> getMyAdoptions(
+    public List<AdoptionApplyRes> getMyAdoptions(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
         return adoptionService.getMyAdoptions(userId);
@@ -29,7 +29,7 @@ public class AdoptionController {
 
     // 로그인한 사용자의 입양 신청 상세를 단건 조회한다.
     @GetMapping("/{applicationId}")
-    public AdoptionDetailResponse getApplicationDetail(
+    public AdoptionDetailRes getApplicationDetail(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long applicationId
     ) {
@@ -38,10 +38,10 @@ public class AdoptionController {
 
     // 로그인한 사용자가 특정 동물에 대한 입양 신청서를 제출한다.
     @PostMapping("/{animalId}")
-    public AdoptionApplyResponse applyApplication(
+    public AdoptionApplyRes applyApplication(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long animalId,
-            @RequestBody AdoptionApplyRequest request) {
+            @RequestBody AdoptionApplyReq request) {
         return adoptionService.applyApplication(userDetails.getUserId(), animalId, request);
     }
 

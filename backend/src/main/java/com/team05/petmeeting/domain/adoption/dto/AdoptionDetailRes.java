@@ -1,4 +1,4 @@
-package com.team05.petmeeting.domain.adoption.dto.response;
+package com.team05.petmeeting.domain.adoption.dto;
 
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class AdoptionDetailResponse {
+public class AdoptionDetailRes {
     private Long applicationId;
     private AdoptionStatus status;
     private String applyReason;
@@ -16,7 +16,7 @@ public class AdoptionDetailResponse {
     private String applyTel;
     private AnimalInfo animalInfo;
 
-    public AdoptionDetailResponse(
+    public AdoptionDetailRes(
             Long applicationId,
             AdoptionStatus status,
             String applyReason,

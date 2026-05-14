@@ -1,8 +1,8 @@
 package com.team05.petmeeting.domain.adoption.service;
 
-import com.team05.petmeeting.domain.adoption.dto.request.AdoptionReviewRequest;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionReviewReq;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
@@ -26,7 +26,7 @@ public class AdoptionAdminService {
 
     // careRegNo 보호소의 관리자인지 확인한 뒤 해당 보호소의 입양 신청 목록만 반환한다.
     @Transactional(readOnly = true)
-    public List<AdoptionApplyResponse> getManagedShelterApplications(Long userId, String careRegNo) {
+    public List<AdoptionApplyRes> getManagedShelterApplications(Long userId, String careRegNo) {
         validateShelterManager(userId, careRegNo);
 
         return adoptionApplicationRepository.findByAnimal_Shelter_CareRegNo(careRegNo).stream()
@@ -36,7 +36,7 @@ public class AdoptionAdminService {
 
     // careRegNo 보호소의 관리자인지 확인한 뒤 담당 보호소 신청 상세만 반환한다.
     @Transactional(readOnly = true)
-    public AdoptionDetailResponse getManagedShelterApplicationDetail(Long userId, String careRegNo, Long applicationId) {
+    public AdoptionDetailRes getManagedShelterApplicationDetail(Long userId, String careRegNo, Long applicationId) {
         validateShelterManager(userId, careRegNo);
 
         AdoptionApplication application = getShelterApplication(careRegNo, applicationId);
@@ -46,11 +46,11 @@ public class AdoptionAdminService {
 
     // careRegNo 보호소 관리자가 입양 신청 상태를 승인/거절/검토중으로 변경한다.
     @Transactional
-    public AdoptionDetailResponse reviewApplication(
+    public AdoptionDetailRes reviewApplication(
             Long userId,
             String careRegNo,
             Long applicationId,
-            AdoptionReviewRequest request
+            AdoptionReviewReq request
     ) {
         validateShelterManager(userId, careRegNo);
         AdoptionApplication application = getShelterApplication(careRegNo, applicationId);
@@ -105,17 +105,17 @@ public class AdoptionAdminService {
     }
 
     // 관리자 목록 조회에 필요한 최소 신청 정보로 변환한다.
-    private AdoptionApplyResponse toResponse(AdoptionApplication application) {
+    private AdoptionApplyRes toResponse(AdoptionApplication application) {
         Animal animal = application.getAnimal();
 
-        AdoptionApplyResponse.AnimalInfo animalInfo = new AdoptionApplyResponse.AnimalInfo(
+        AdoptionApplyRes.AnimalInfo animalInfo = new AdoptionApplyRes.AnimalInfo(
                 animal.getDesertionNo(),
                 animal.getKindFullNm(),
                 animal.getCareNm(),
                 animal.getCareOwnerNm()
         );
 
-        return new AdoptionApplyResponse(
+        return new AdoptionApplyRes(
                 application.getId(),
                 application.getStatus(),
                 animalInfo
@@ -123,10 +123,10 @@ public class AdoptionAdminService {
     }
 
     // 관리자 상세 조회에 필요한 신청, 연락처, 심사, 동물 정보를 함께 변환한다.
-    private AdoptionDetailResponse toDetailResponse(AdoptionApplication application) {
+    private AdoptionDetailRes toDetailResponse(AdoptionApplication application) {
         Animal animal = application.getAnimal();
 
-        AdoptionDetailResponse.AnimalInfo animalInfo = new AdoptionDetailResponse.AnimalInfo(
+        AdoptionDetailRes.AnimalInfo animalInfo = new AdoptionDetailRes.AnimalInfo(
                 animal.getDesertionNo(),
                 animal.getSpecialMark(),
                 animal.getCareNm(),
@@ -135,7 +135,7 @@ public class AdoptionAdminService {
                 animal.getCareAddr()
         );
 
-        return new AdoptionDetailResponse(
+        return new AdoptionDetailRes(
                 application.getId(),
                 application.getStatus(),
                 application.getApplyReason(),

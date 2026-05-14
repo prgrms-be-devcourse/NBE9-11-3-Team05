@@ -1,15 +1,15 @@
-package com.team05.petmeeting.domain.adoption.dto.response;
+package com.team05.petmeeting.domain.adoption.dto;
 
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import lombok.Getter;
 
 @Getter
-public class AdoptionApplyResponse {
+public class AdoptionApplyRes {
     private Long applicationId;
     private AdoptionStatus status;
     private AnimalInfo animalInfo;
 
-    public AdoptionApplyResponse(Long applicationId, AdoptionStatus status, AnimalInfo animalInfo) {
+    public AdoptionApplyRes(Long applicationId, AdoptionStatus status, AnimalInfo animalInfo) {
         this.applicationId = applicationId;
         this.status = status;
         this.animalInfo = animalInfo;

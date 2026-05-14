@@ -1,8 +1,8 @@
 package com.team05.petmeeting.domain.adoption.controller;
 
-import com.team05.petmeeting.domain.adoption.dto.request.AdoptionReviewRequest;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionReviewReq;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes;
 import com.team05.petmeeting.domain.adoption.service.AdoptionAdminService;
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails;
 import java.util.List;
@@ -24,7 +24,7 @@ public class AdoptionAdminController {
 
     // 보호소 관리자가 담당 보호소에 접수된 입양 신청 목록을 조회한다.
     @GetMapping("/shelters/{careRegNo}/applications")
-    public List<AdoptionApplyResponse> getManagedShelterApplications(
+    public List<AdoptionApplyRes> getManagedShelterApplications(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String careRegNo
     ) {
@@ -33,7 +33,7 @@ public class AdoptionAdminController {
 
     // 보호소 관리자가 담당 보호소의 입양 신청 상세 정보를 조회한다.
     @GetMapping("/shelters/{careRegNo}/applications/{applicationId}")
-    public AdoptionDetailResponse getManagedShelterApplicationDetail(
+    public AdoptionDetailRes getManagedShelterApplicationDetail(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String careRegNo,
             @PathVariable Long applicationId
@@ -43,11 +43,11 @@ public class AdoptionAdminController {
 
     // 보호소 관리자가 담당 보호소의 입양 신청 상태를 검토한다.
     @PatchMapping("/shelters/{careRegNo}/applications/{applicationId}/review")
-    public AdoptionDetailResponse reviewApplication(
+    public AdoptionDetailRes reviewApplication(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String careRegNo,
             @PathVariable Long applicationId,
-            @RequestBody AdoptionReviewRequest request
+            @RequestBody AdoptionReviewReq request
     ) {
         return adoptionAdminService.reviewApplication(userDetails.getUserId(), careRegNo, applicationId, request);
     }

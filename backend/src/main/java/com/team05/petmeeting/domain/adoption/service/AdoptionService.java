@@ -1,8 +1,8 @@
 package com.team05.petmeeting.domain.adoption.service;
 
-import com.team05.petmeeting.domain.adoption.dto.request.AdoptionApplyRequest;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyReq;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
 import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
@@ -26,25 +26,25 @@ public class AdoptionService {
     private final AnimalRepository animalRepository;
 
     // 사용자별 입양 신청 목록을 조회하고 목록 응답 DTO로 변환한다.
-    public List<AdoptionApplyResponse> getMyAdoptions(Long userId) {
+    public List<AdoptionApplyRes> getMyAdoptions(Long userId) {
         return adoptionApplicationRepository.findByUser_Id(userId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     // 목록 조회용 입양 신청 엔터티를 간단한 응답 DTO로 변환한다.
-    private AdoptionApplyResponse toResponse(AdoptionApplication application) {
+    private AdoptionApplyRes toResponse(AdoptionApplication application) {
         Animal animal = application.getAnimal();
 
-        AdoptionApplyResponse.AnimalInfo animalInfo =
-                new AdoptionApplyResponse.AnimalInfo(
+        AdoptionApplyRes.AnimalInfo animalInfo =
+                new AdoptionApplyRes.AnimalInfo(
                         animal.getDesertionNo(),
                         animal.getKindFullNm(),
                         animal.getCareNm(),
                         animal.getCareOwnerNm()
                 );
 
-        return new AdoptionApplyResponse(
+        return new AdoptionApplyRes(
                 application.getId(),
                 application.getStatus(),
                 animalInfo
@@ -52,7 +52,7 @@ public class AdoptionService {
     }
 
     // 로그인한 사용자의 입양 신청 상세를 조회하고 상세 응답 DTO로 변환한다.
-    public AdoptionDetailResponse getApplicationDetail(Long userId, Long applicationId) {
+    public AdoptionDetailRes getApplicationDetail(Long userId, Long applicationId) {
         AdoptionApplication application = adoptionApplicationRepository
                 .findByIdAndUser_Id(applicationId, userId)
                 .orElseThrow(() -> new BusinessException(AdoptionErrorCode.APPLICATION_NOT_FOUND));
@@ -61,11 +61,11 @@ public class AdoptionService {
     }
 
     // 상세 조회용 입양 신청 엔터티를 상세 응답 DTO로 변환한다.
-    private AdoptionDetailResponse toDetailResponse(AdoptionApplication application) {
+    private AdoptionDetailRes toDetailResponse(AdoptionApplication application) {
         Animal animal = application.getAnimal();
 
-        AdoptionDetailResponse.AnimalInfo animalInfo =
-                new AdoptionDetailResponse.AnimalInfo(
+        AdoptionDetailRes.AnimalInfo animalInfo =
+                new AdoptionDetailRes.AnimalInfo(
                         animal.getDesertionNo(),
                         animal.getSpecialMark(),
                         animal.getCareNm(),
@@ -74,7 +74,7 @@ public class AdoptionService {
                         animal.getCareAddr()
                 );
 
-        return new AdoptionDetailResponse(
+        return new AdoptionDetailRes(
                 application.getId(),
                 application.getStatus(),
                 application.getApplyReason(),
@@ -87,7 +87,7 @@ public class AdoptionService {
     }
 
     // 로그인한 사용자의 입양 신청을 저장하고 생성 결과를 응답 DTO로 반환한다.
-    public AdoptionApplyResponse applyApplication(Long userId, Long animalId, AdoptionApplyRequest request) {
+    public AdoptionApplyRes applyApplication(Long userId, Long animalId, AdoptionApplyReq request) {
         if (adoptionApplicationRepository.existsByUser_IdAndAnimal_Id(userId, animalId)) {
             throw new BusinessException(AdoptionErrorCode.ALREADY_APPLIED);
         }
