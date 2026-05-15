@@ -99,10 +99,10 @@ class NamingService(
         val manager = userRepository.findById(managerId)
             .orElseThrow{ BusinessException(UserErrorCode.USER_NOT_FOUND) }
 
-        val shelter = manager.shelter ?: throw BusinessException(NamingErrorCode.ACCESS_DENIED)
+        val careNm = manager.shelter?.careNm ?: throw BusinessException(NamingErrorCode.ACCESS_DENIED)
 
         // 1. 해당 보호소의 10표 이상 모든 후보 조회
-        val allQualified = candidateRepository.findAllQualifiedCandidatesByShelter(shelter.careNm, QUALIFIED_THRESHOLD)
+        val allQualified = candidateRepository.findAllQualifiedCandidatesByShelter(careNm, QUALIFIED_THRESHOLD)
 
         // 2. 동물(AnimalId)별로 그룹화하여 "가장 득표수가 높은 후보 1개"만 추출
         // (쿼리에서 voteCount.desc()로 정렬했으므로 첫 번째 값만 취하면 됨)
