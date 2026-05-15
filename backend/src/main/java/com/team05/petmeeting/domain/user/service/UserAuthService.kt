@@ -15,7 +15,7 @@ import com.team05.petmeeting.domain.user.repository.UserRepository
 import com.team05.petmeeting.global.exception.BusinessException
 import com.team05.petmeeting.global.security.errorCode.SecurityErrorCode
 import com.team05.petmeeting.global.security.util.JwtUtil
-import com.team05.petmeeting.global.security.util.RefreshTokenUtil.REFRESH_TOKEN_COOKIE_NAME
+import com.team05.petmeeting.global.security.util.RefreshTokenUtil.Companion.REFRESH_TOKEN_COOKIE_NAME
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
