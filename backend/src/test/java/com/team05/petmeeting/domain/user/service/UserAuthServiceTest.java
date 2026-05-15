@@ -60,7 +60,7 @@ class UserAuthServiceTest {
         String email = "test@gmail.com";
         String code = "123456";
 
-        when(otpService.getSignupOtp(email)).thenReturn(Optional.of(code));
+        when(otpService.getSignupOtp(email)).thenReturn(code);
         when(otpService.markVerifiedWithToken(email)).thenReturn("verify-token");
 
         String result = userAuthService.verifyOtp(email, code);
@@ -74,7 +74,7 @@ class UserAuthServiceTest {
     void verifyOtp_expired() {
         String email = "test@gmail.com";
 
-        when(otpService.getSignupOtp(email)).thenReturn(Optional.empty());
+        when(otpService.getSignupOtp(email)).thenReturn(null);
 
         assertThatThrownBy(() -> userAuthService.verifyOtp(email, "123456"))
                 .isInstanceOf(BusinessException.class)
@@ -87,7 +87,7 @@ class UserAuthServiceTest {
     void verifyOtp_invalid() {
         String email = "test@gmail.com";
 
-        when(otpService.getSignupOtp(email)).thenReturn(Optional.of("123456"));
+        when(otpService.getSignupOtp(email)).thenReturn("123456");
         when(otpService.isExceededAttempts(email)).thenReturn(false);
 
         assertThatThrownBy(() -> userAuthService.verifyOtp(email, "000000"))
@@ -103,7 +103,7 @@ class UserAuthServiceTest {
     void verifyOtp_too_many_attempts() {
         String email = "test@gmail.com";
 
-        when(otpService.getSignupOtp(email)).thenReturn(Optional.of("123456"));
+        when(otpService.getSignupOtp(email)).thenReturn("123456");
         when(otpService.isExceededAttempts(email)).thenReturn(true);
 
         assertThatThrownBy(() -> userAuthService.verifyOtp(email, "000000"))
@@ -121,7 +121,7 @@ class UserAuthServiceTest {
         String token = "valid-token";
         EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
 
-        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.of("test@gmail.com"));
+        when(otpService.getEmailByVerifyToken(token)).thenReturn("test@gmail.com");
         when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("pw")).thenReturn("encoded");
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
@@ -141,7 +141,7 @@ class UserAuthServiceTest {
         String token = "token";
         EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
 
-        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.of("test@gmail.com"));
+        when(otpService.getEmailByVerifyToken(token)).thenReturn("test@gmail.com");
         when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(mock(User.class)));
 
         assertThatThrownBy(() -> userAuthService.signupAndLoginWithEmail(request))
@@ -156,7 +156,7 @@ class UserAuthServiceTest {
         String token = "invalid-token";
         EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
 
-        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.empty());
+        when(otpService.getEmailByVerifyToken(token)).thenReturn(null);
 
         assertThatThrownBy(() -> userAuthService.signupAndLoginWithEmail(request))
                 .isInstanceOf(BusinessException.class)

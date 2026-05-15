@@ -8,7 +8,6 @@ import static org.mockito.Mockito.startsWith;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -55,10 +54,10 @@ class OtpServiceTest {
         String email = "test@test.com";
         when(valueOperations.get("otp:signup:" + email)).thenReturn("123456");
 
-        Optional<String> result = otpService.getSignupOtp(email);
+        String result = otpService.getSignupOtp(email);
 
-        assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo("123456");
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo("123456");
     }
 
     @Test
@@ -129,10 +128,10 @@ class OtpServiceTest {
 
         when(valueOperations.get("otp:verified:" + token)).thenReturn("test@test.com");
 
-        Optional<String> result = otpService.getEmailByVerifyToken(token);
+        String result = otpService.getEmailByVerifyToken(token);
 
-        assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo("test@test.com");
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo("test@test.com");
     }
 
     @Test
