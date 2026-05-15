@@ -4,13 +4,7 @@ import com.team05.petmeeting.domain.cheer.repository.CheerRepository
 import com.team05.petmeeting.domain.comment.repository.AnimalCommentRepository
 import com.team05.petmeeting.domain.comment.repository.FeedCommentRepository
 import com.team05.petmeeting.domain.feed.repository.FeedRepository
-import com.team05.petmeeting.domain.user.dto.profile.MyProfileDetailRes
-import com.team05.petmeeting.domain.user.dto.profile.UserAnimalCommentRes
-import com.team05.petmeeting.domain.user.dto.profile.UserCheerAnimalRes
-import com.team05.petmeeting.domain.user.dto.profile.UserFeedCommentRes
-import com.team05.petmeeting.domain.user.dto.profile.UserFeedRes
-import com.team05.petmeeting.domain.user.dto.profile.UserProfileRes
-import com.team05.petmeeting.domain.user.dto.profile.UserSummaryRes
+import com.team05.petmeeting.domain.user.dto.profile.*
 import com.team05.petmeeting.domain.user.entity.User
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode
 import com.team05.petmeeting.domain.user.provider.Provider
@@ -51,15 +45,20 @@ class UserProfileService(
             .firstOrNull { it.provider == Provider.LOCAL }
             ?: throw BusinessException(UserErrorCode.LOCAL_NOT_FOUND)
 
-        if (!passwordEncoder.matches(currentPassword, userAuth.password)) {
+        val encodedPassword = userAuth.password
+            ?: throw BusinessException(UserErrorCode.INVALID_PASSWORD)
+
+        if (!passwordEncoder.matches(currentPassword, encodedPassword)) {
             throw BusinessException(UserErrorCode.INVALID_PASSWORD)
         }
 
-        if (passwordEncoder.matches(newPassword, userAuth.password)) {
+        if (passwordEncoder.matches(newPassword, encodedPassword)) {
             throw BusinessException(UserErrorCode.SAME_AS_OLD_PASSWORD)
         }
 
-        userAuth.updatePassword(passwordEncoder.encode(newPassword))
+        val newEncodedPassword = passwordEncoder.encode(newPassword)
+            ?: throw BusinessException(UserErrorCode.INVALID_PASSWORD)
+        userAuth.updatePassword(newEncodedPassword)
     }
 
     fun getMyProfileDetails(userId: Long): MyProfileDetailRes =
