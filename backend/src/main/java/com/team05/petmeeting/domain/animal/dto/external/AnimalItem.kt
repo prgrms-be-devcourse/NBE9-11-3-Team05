@@ -1,5 +1,6 @@
 package com.team05.petmeeting.domain.animal.dto.external
 
+// 외부 유기동물 API가 반환하는 개별 동물 정보
 data class AnimalItem @JvmOverloads constructor(
     var desertionNo: String? = null,
     var processState: String? = null,

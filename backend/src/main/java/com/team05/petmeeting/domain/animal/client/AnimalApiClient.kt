@@ -7,31 +7,31 @@ import org.springframework.stereotype.Component
 class AnimalApiClient(
     private val properties: AnimalApiProperties,
 ) {
-    // 유기동물 정보 조회 API URL 반환
+    // 유기동물 정보 조회 API URL
     val abandonmentUrl: String
         get() = properties.baseUrl + ABANDONMENT_PATH
 
-    // 시도 정보 조회 API URL 반환
+    // 시도 정보 조회 API URL
     val sidoUrl: String
         get() = properties.baseUrl + SIDO_PATH
 
-    // 시군구 정보 조회 API URL 반환
+    // 시군구 정보 조회 API URL
     val sigunguUrl: String
         get() = properties.baseUrl + SIGUNGU_PATH
 
-    // 보호소 정보 조회 API URL 반환
+    // 보호소 정보 조회 API URL
     val shelterUrl: String
         get() = properties.baseUrl + SHELTER_PATH
 
-    // 품종 정보 조회 API URL 반환
+    // 품종 정보 조회 API URL
     val kindUrl: String
         get() = properties.baseUrl + KIND_PATH
 
-    // API 인증에 필요한 서비스 키 반환
+    // API 인증에 필요한 서비스 키
     val serviceKey: String
         get() = properties.serviceKey
 
-    // API 응답 형식 반환
+    // API 응답 형식
     val returnType: String
         get() = properties.returnType
 

@@ -31,11 +31,13 @@ class SyncState protected constructor() {
         this.syncType = syncType
     }
 
+    // 동기화 타입별 마지막 성공 시각을 갱신한다.
     fun updateLastUpdatedAt(lastUpdatedAt: LocalDateTime) {
         this.lastUpdatedAt = lastUpdatedAt
     }
 
     companion object {
+        // sync type 별 상태 엔터티를 처음 생성할 때 사용한다.
         @JvmStatic
         fun create(syncType: AnimalSyncType): SyncState = SyncState(syncType)
     }
