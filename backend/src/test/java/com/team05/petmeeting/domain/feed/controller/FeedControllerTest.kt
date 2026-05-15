@@ -42,6 +42,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.Optional
@@ -102,6 +103,8 @@ internal class FeedControllerTest {
                 .content(objectMapper.writeValueAsString(req))
                 .with(authentication(auth()))
         )
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("write"))
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.title").value("새 피드 제목"))
             .andExpect(jsonPath("$.content").value("새 피드 내용"))
@@ -115,6 +118,8 @@ internal class FeedControllerTest {
         )
 
         mvc.perform(get("/api/v1/feeds/{feedId}", feedId))
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("getFeed"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.title").value("테스트 피드"))
             .andExpect(jsonPath("$.content").value("내용"))
@@ -127,6 +132,8 @@ internal class FeedControllerTest {
             .thenThrow(BusinessException(FeedErrorCode.FEED_NOT_FOUND))
 
         mvc.perform(get("/api/v1/feeds/{feedId}", 999L))
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("getFeed"))
             .andExpect(status().isNotFound)
     }
 
@@ -143,6 +150,8 @@ internal class FeedControllerTest {
 
 
         mvc.perform(get("/api/v1/feeds"))
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("getFeeds"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content").isArray)
     }
@@ -161,6 +170,8 @@ internal class FeedControllerTest {
                 .content(objectMapper.writeValueAsString(req))
                 .with(authentication(auth()))
         )
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("modify"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.title").value("수정된 제목"))
             .andExpect(jsonPath("$.content").value("수정된 내용"))
@@ -180,6 +191,8 @@ internal class FeedControllerTest {
                 .content(objectMapper.writeValueAsString(req))
                 .with(authentication(auth()))
         )
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("modify"))
             .andExpect(status().isNotFound)
     }
 
@@ -190,6 +203,8 @@ internal class FeedControllerTest {
             delete("/api/v1/feeds/{feedId}", feedId)
                 .with(authentication(auth()))
         )
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("delete"))
             .andExpect(status().isNoContent)
     }
 
@@ -204,6 +219,8 @@ internal class FeedControllerTest {
             delete("/api/v1/feeds/{feedId}", 999L)
                 .with(authentication(auth()))
         )
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("delete"))
             .andExpect(status().isNotFound)
     }
 
@@ -221,6 +238,8 @@ internal class FeedControllerTest {
                 .content(objectMapper.writeValueAsString(req))
                 .with(authentication(auth()))
         )
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("modify"))
             .andExpect(status().isForbidden)
     }
 
@@ -235,6 +254,8 @@ internal class FeedControllerTest {
             delete("/api/v1/feeds/{feedId}", feedId)
                 .with(authentication(auth()))
         )
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("delete"))
             .andExpect(status().isForbidden)
     }
 
@@ -248,6 +269,8 @@ internal class FeedControllerTest {
             post("/api/v1/feeds/{feedId}/likes", feedId)
                 .with(authentication(auth()))
         )
+            .andExpect(handler().handlerType(FeedController::class.java))
+            .andExpect(handler().methodName("toggleLike"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.likeCount").value(1))
             .andExpect(jsonPath("$.isLiked").value(true))

@@ -15,15 +15,17 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.jupiter.MockitoExtension
 import java.util.*
 
+@ExtendWith(MockitoExtension::class)
 internal class FeedLikeServiceTest {
     @InjectMocks
     private lateinit var feedLikeService: FeedLikeService
@@ -40,8 +42,6 @@ internal class FeedLikeServiceTest {
     @BeforeEach
     @Throws(Exception::class)
     fun setUp() {
-        MockitoAnnotations.openMocks(this)
-
         user = create("test@test.com", "테스터", "홍길동")
         val idField = BaseEntity::class.java.getDeclaredField("id")
         idField.setAccessible(true)
