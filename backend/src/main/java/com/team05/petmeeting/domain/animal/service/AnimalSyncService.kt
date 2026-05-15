@@ -276,7 +276,7 @@ class AnimalSyncService(
             .filter { !it.updTm.isNullOrBlank() }
             .map {
                 ShelterCommand(
-                    it.careRegNo,
+                    it.careRegNo!!,
                     it.careNm,
                     it.careTel,
                     it.careAddr,
@@ -306,11 +306,8 @@ class AnimalSyncService(
 
     // 외부 API 응답에서 실제 동물 목록만 꺼내고, 비정상 구조면 빈 리스트를 돌려준다.
     private fun extractItems(response: AnimalApiResponse?): List<AnimalItem> {
-        if (response?.response == null) {
-            return emptyList()
-        }
-
-        val body = response.response.body ?: return emptyList()
+        val animalResponse = response?.response ?: return emptyList()
+        val body = animalResponse.body ?: return emptyList()
         val items = body.items ?: return emptyList()
         return items.item ?: emptyList()
     }
