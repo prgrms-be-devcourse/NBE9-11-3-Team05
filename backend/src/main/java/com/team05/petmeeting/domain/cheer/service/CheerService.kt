@@ -76,7 +76,7 @@ class CheerService(
 
         return CheerRes(
             animalId,
-            updatedAnimal.getTotalCheerCount(),
+            updatedAnimal.totalCheerCount,
             updatedAnimal.getTemperature(),
             5 - updatedUser.getDailyHeartCount()
         )
