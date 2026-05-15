@@ -9,19 +9,19 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
+import com.team05.petmeeting.domain.user.dto.auth.emailsignup.EmailSignupReq;
+import com.team05.petmeeting.domain.user.dto.auth.login.LoginAndRefreshRes;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
 import com.team05.petmeeting.domain.user.provider.Provider;
+import com.team05.petmeeting.domain.user.refreshtoken.entity.RefreshToken;
 import com.team05.petmeeting.domain.user.refreshtoken.repository.RefreshTokenRepository;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.global.exception.BusinessException;
 import com.team05.petmeeting.global.security.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,7 +60,7 @@ class UserAuthServiceTest {
         String email = "test@gmail.com";
         String code = "123456";
 
-        when(otpService.getSignupOtp(email)).thenReturn(Optional.of(code));
+        when(otpService.getSignupOtp(email)).thenReturn(code);
         when(otpService.markVerifiedWithToken(email)).thenReturn("verify-token");
 
         String result = userAuthService.verifyOtp(email, code);
@@ -74,7 +74,7 @@ class UserAuthServiceTest {
     void verifyOtp_expired() {
         String email = "test@gmail.com";
 
-        when(otpService.getSignupOtp(email)).thenReturn(Optional.empty());
+        when(otpService.getSignupOtp(email)).thenReturn(null);
 
         assertThatThrownBy(() -> userAuthService.verifyOtp(email, "123456"))
                 .isInstanceOf(BusinessException.class)
@@ -87,7 +87,7 @@ class UserAuthServiceTest {
     void verifyOtp_invalid() {
         String email = "test@gmail.com";
 
-        when(otpService.getSignupOtp(email)).thenReturn(Optional.of("123456"));
+        when(otpService.getSignupOtp(email)).thenReturn("123456");
         when(otpService.isExceededAttempts(email)).thenReturn(false);
 
         assertThatThrownBy(() -> userAuthService.verifyOtp(email, "000000"))
@@ -103,7 +103,7 @@ class UserAuthServiceTest {
     void verifyOtp_too_many_attempts() {
         String email = "test@gmail.com";
 
-        when(otpService.getSignupOtp(email)).thenReturn(Optional.of("123456"));
+        when(otpService.getSignupOtp(email)).thenReturn("123456");
         when(otpService.isExceededAttempts(email)).thenReturn(true);
 
         assertThatThrownBy(() -> userAuthService.verifyOtp(email, "000000"))
@@ -121,17 +121,17 @@ class UserAuthServiceTest {
         String token = "valid-token";
         EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
 
-        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.of("test@gmail.com"));
-        when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.empty());
+        when(otpService.getEmailByVerifyToken(token)).thenReturn("test@gmail.com");
+        when(userRepository.findByEmail("test@gmail.com")).thenReturn(null);
         when(passwordEncoder.encode("pw")).thenReturn("encoded");
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
         User user = User.create("test@gmail.com", "닉네임", "홍길동");
         when(userRepository.save(any())).thenReturn(user);
 
-        LoginAndRefreshResult result = userAuthService.signupAndLoginWithEmail(request);
+        LoginAndRefreshRes result = userAuthService.signupAndLoginWithEmail(request);
 
-        assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
+        assertThat(result.getAccessTokenRes().getAccessToken()).isEqualTo("accessToken");
         verify(otpService).clearVerifiedByToken(token);
     }
 
@@ -140,9 +140,10 @@ class UserAuthServiceTest {
     void signup_fail_duplicate() {
         String token = "token";
         EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
+        User user = User.create("test@gmail.com", "닉네임", "홍길동");
 
-        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.of("test@gmail.com"));
-        when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(mock(User.class)));
+        when(otpService.getEmailByVerifyToken(token)).thenReturn("test@gmail.com");
+        when(userRepository.findByEmail("test@gmail.com")).thenReturn(user);
 
         assertThatThrownBy(() -> userAuthService.signupAndLoginWithEmail(request))
                 .isInstanceOf(BusinessException.class)
@@ -156,7 +157,7 @@ class UserAuthServiceTest {
         String token = "invalid-token";
         EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
 
-        when(otpService.getEmailByVerifyToken(token)).thenReturn(Optional.empty());
+        when(otpService.getEmailByVerifyToken(token)).thenReturn(null);
 
         assertThatThrownBy(() -> userAuthService.signupAndLoginWithEmail(request))
                 .isInstanceOf(BusinessException.class)
@@ -173,13 +174,13 @@ class UserAuthServiceTest {
         UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encoded");
         user.addAuth(auth);
 
-        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(user);
         when(passwordEncoder.matches("pw", "encoded")).thenReturn(true);
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
-        LoginAndRefreshResult result = userAuthService.loginWithEmail(email, "pw");
+        LoginAndRefreshRes result = userAuthService.loginWithEmail(email, "pw");
 
-        assertThat(result.accessTokenRes().accessToken()).isEqualTo("accessToken");
+        assertThat(result.getAccessTokenRes().getAccessToken()).isEqualTo("accessToken");
         verify(refreshTokenRepository).save(any());
     }
 
@@ -192,7 +193,7 @@ class UserAuthServiceTest {
         UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encoded");
         user.addAuth(auth);
 
-        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(null);
         when(passwordEncoder.matches("pw", "encoded")).thenReturn(false);
 
         assertThatThrownBy(() -> userAuthService.loginWithEmail(email, "pw"))
@@ -234,14 +235,14 @@ class UserAuthServiceTest {
         when(request.getCookies()).thenReturn(new Cookie[]{cookie});
 
         User user = User.create("test@gmail.com", "닉네임", "홍길동");
-        var saved = com.team05.petmeeting.domain.user.refreshtoken.entity.RefreshToken.create(user, token);
+        var saved = RefreshToken.create(user, token);
 
-        when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.of(saved));
+        when(refreshTokenRepository.findByToken(token)).thenReturn(saved);
         when(jwtUtil.createToken(any(), anyList())).thenReturn("newAccess");
 
-        LoginAndRefreshResult result = userAuthService.refresh(request);
+        LoginAndRefreshRes result = userAuthService.refresh(request);
 
-        assertThat(result.accessTokenRes().accessToken()).isEqualTo("newAccess");
+        assertThat(result.getAccessTokenRes().getAccessToken()).isEqualTo("newAccess");
         verify(refreshTokenRepository).delete(saved);
         verify(refreshTokenRepository).save(any());
     }

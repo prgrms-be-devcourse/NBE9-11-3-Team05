@@ -1,5 +1,9 @@
 package com.team05.petmeeting.domain.user.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.team05.petmeeting.domain.user.dto.profile.UserProfileRes;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.entity.UserAuth;
@@ -16,10 +20,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -93,7 +93,7 @@ class UserProfileServiceTest {
     @Test
     void modifyNickname_success() {
         UserProfileRes res = userProfileService.modifyNickname(userId, "새닉네임");
-        assertThat(res.nickname()).isEqualTo("새닉네임");
+        assertThat(res.getNickname()).isEqualTo("새닉네임");
     }
 
     // 존재하지 않는 유저 조회 (U-004)

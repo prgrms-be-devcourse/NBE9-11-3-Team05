@@ -7,13 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team05.petmeeting.domain.user.dto.emailsignup.EmailSignupReq;
-import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartReq;
-import com.team05.petmeeting.domain.user.dto.emailstart.EmailStartRes;
-import com.team05.petmeeting.domain.user.dto.emailverify.EmailVerifyReq;
-import com.team05.petmeeting.domain.user.dto.login.AccessTokenRes;
-import com.team05.petmeeting.domain.user.dto.login.LoginAndRefreshResult;
-import com.team05.petmeeting.domain.user.dto.login.local.EmailLoginReq;
+import com.team05.petmeeting.domain.user.dto.auth.emailsignup.EmailSignupReq;
+import com.team05.petmeeting.domain.user.dto.auth.emailstart.EmailStartReq;
+import com.team05.petmeeting.domain.user.dto.auth.emailstart.EmailStartRes;
+import com.team05.petmeeting.domain.user.dto.auth.emailstart.EmailStartRes.NextStep;
+import com.team05.petmeeting.domain.user.dto.auth.emailverify.EmailVerifyReq;
+import com.team05.petmeeting.domain.user.dto.auth.login.AccessTokenRes;
+import com.team05.petmeeting.domain.user.dto.auth.login.LoginAndRefreshRes;
+import com.team05.petmeeting.domain.user.dto.auth.login.local.EmailLoginReq;
 import com.team05.petmeeting.domain.user.service.UserAuthService;
 import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
 import com.team05.petmeeting.global.security.util.JwtUtil;
@@ -51,7 +52,7 @@ class UserAuthControllerTest {
     @DisplayName("이메일 시작 - 성공")
     void startEmail() throws Exception {
         EmailStartReq req = new EmailStartReq("test@test.com");
-        EmailStartRes res = new EmailStartRes(true, null);
+        EmailStartRes res = new EmailStartRes(true, NextStep.SIGNUP_WITH_OTP);
 
         Mockito.when(userAuthService.startEmailFlow(anyString()))
                 .thenReturn(res);
@@ -96,8 +97,8 @@ class UserAuthControllerTest {
         EmailSignupReq req = new EmailSignupReq(verificationToken, "Password12!", "nickname", "realname");
 
         AccessTokenRes accessToken = new AccessTokenRes("Bearer", "access-token");
-        LoginAndRefreshResult result =
-                new LoginAndRefreshResult("refreshToken", accessToken);
+        LoginAndRefreshRes result =
+                new LoginAndRefreshRes("refreshToken", accessToken);
 
         Mockito.when(userAuthService.signupAndLoginWithEmail(any()))
                 .thenReturn(result);
@@ -115,8 +116,8 @@ class UserAuthControllerTest {
         EmailLoginReq req = new EmailLoginReq("test@test.com", "Password12!");
 
         AccessTokenRes accessToken = new AccessTokenRes("Bearer", "access-token");
-        LoginAndRefreshResult result =
-                new LoginAndRefreshResult("refershToken", accessToken);
+        LoginAndRefreshRes result =
+                new LoginAndRefreshRes("refershToken", accessToken);
 
         Mockito.when(userAuthService.loginWithEmail(anyString(), anyString()))
                 .thenReturn(result);
@@ -139,8 +140,8 @@ class UserAuthControllerTest {
     @DisplayName("토큰 재발급 - 성공")
     void refresh() throws Exception {
         AccessTokenRes accessToken = new AccessTokenRes("Bearer", "new-access");
-        LoginAndRefreshResult result =
-                new LoginAndRefreshResult("refreshToken", accessToken);
+        LoginAndRefreshRes result =
+                new LoginAndRefreshRes("refreshToken", accessToken);
 
         Mockito.when(userAuthService.refresh(any()))
                 .thenReturn(result);
