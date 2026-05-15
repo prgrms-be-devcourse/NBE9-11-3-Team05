@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.team05.petmeeting.domain.adoption.dto.request.AdoptionApplyRequest;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyReq;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.service.AdoptionService;
@@ -71,10 +71,10 @@ class AdoptionControllerTest {
     @Test
     @DisplayName("로그인 사용자의 입양 신청 목록 조회 성공")
     void getMyAdoptions() throws Exception {
-        AdoptionApplyResponse response = new AdoptionApplyResponse(
+        AdoptionApplyRes response = new AdoptionApplyRes(
                 10L,
                 AdoptionStatus.Processing,
-                new AdoptionApplyResponse.AnimalInfo("A-001", "믹스견", "테스트 보호소", "보호소장")
+                new AdoptionApplyRes.AnimalInfo("A-001", "믹스견", "테스트 보호소", "보호소장")
         );
         given(adoptionService.getMyAdoptions(USER_ID)).willReturn(List.of(response));
 
@@ -93,7 +93,7 @@ class AdoptionControllerTest {
     @DisplayName("로그인 사용자의 입양 신청 상세 조회 성공")
     void getApplicationDetail() throws Exception {
         Long applicationId = 10L;
-        AdoptionDetailResponse response = new AdoptionDetailResponse(
+        AdoptionDetailRes response = new AdoptionDetailRes(
                 applicationId,
                 AdoptionStatus.Processing,
                 "입양하고 싶습니다.",
@@ -101,7 +101,7 @@ class AdoptionControllerTest {
                 null,
                 null,
                 "010-1234-5678",
-                new AdoptionDetailResponse.AnimalInfo(
+                new AdoptionDetailRes.AnimalInfo(
                         "A-001",
                         "특이사항 없음",
                         "테스트 보호소",
@@ -130,12 +130,12 @@ class AdoptionControllerTest {
     void applyApplication() throws Exception {
         // 컨트롤러는 로그인 사용자 ID, 동물 ID, 요청 본문을 서비스에 위임한다.
         Long animalId = 20L;
-        AdoptionApplyResponse response = new AdoptionApplyResponse(
+        AdoptionApplyRes response = new AdoptionApplyRes(
                 10L,
                 AdoptionStatus.Processing,
-                new AdoptionApplyResponse.AnimalInfo("A-001", "믹스견", "테스트 보호소", "보호소장")
+                new AdoptionApplyRes.AnimalInfo("A-001", "믹스견", "테스트 보호소", "보호소장")
         );
-        given(adoptionService.applyApplication(eq(USER_ID), eq(animalId), any(AdoptionApplyRequest.class)))
+        given(adoptionService.applyApplication(eq(USER_ID), eq(animalId), any(AdoptionApplyReq.class)))
                 .willReturn(response);
 
         mockMvc.perform(post("/adoptions/{animalId}", animalId)
@@ -151,14 +151,14 @@ class AdoptionControllerTest {
                 .andExpect(jsonPath("$.status").value("Processing"))
                 .andExpect(jsonPath("$.animalInfo.desertionNo").value("A-001"));
 
-        verify(adoptionService).applyApplication(eq(USER_ID), eq(animalId), any(AdoptionApplyRequest.class));
+        verify(adoptionService).applyApplication(eq(USER_ID), eq(animalId), any(AdoptionApplyReq.class));
     }
 
     @Test
     @DisplayName("이미 신청한 동물은 중복 신청 에러를 반환한다")
     void applyApplication_alreadyApplied() throws Exception {
         // 서비스에서 발생한 도메인 예외가 전역 예외 핸들러를 통해 HTTP 409로 변환되는지 확인한다.
-        given(adoptionService.applyApplication(eq(USER_ID), eq(20L), any(AdoptionApplyRequest.class)))
+        given(adoptionService.applyApplication(eq(USER_ID), eq(20L), any(AdoptionApplyReq.class)))
                 .willThrow(new BusinessException(AdoptionErrorCode.ALREADY_APPLIED));
 
         mockMvc.perform(post("/adoptions/{animalId}", 20L)

@@ -10,19 +10,22 @@ import com.team05.petmeeting.domain.animal.entity.Animal;
 import com.team05.petmeeting.domain.animal.entity.QAnimal;
 import com.team05.petmeeting.domain.animal.errorCode.AnimalErrorCode;
 import com.team05.petmeeting.domain.naming.dto.NameCandidateRes;
+import com.team05.petmeeting.domain.naming.entity.QAnimalNameCandidate;
+import com.team05.petmeeting.domain.naming.entity.QNameVoteHistory;
+import com.team05.petmeeting.domain.shelter.entity.QShelter;
+import com.team05.petmeeting.domain.user.entity.QUser;
 import com.team05.petmeeting.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import static com.team05.petmeeting.domain.animal.entity.QAnimal.animal;
-import static com.team05.petmeeting.domain.naming.entity.QAnimalNameCandidate.animalNameCandidate;
-import static com.team05.petmeeting.domain.naming.entity.QNameVoteHistory.nameVoteHistory;
-import static com.team05.petmeeting.domain.shelter.entity.QShelter.shelter;
-import static com.team05.petmeeting.domain.user.entity.QUser.user;
-
 @RequiredArgsConstructor
 public class NamingRepositoryCustomImpl implements NamingRepositoryCustom {
+    private static final QAnimal animal = QAnimal.animal;
+    private static final QAnimalNameCandidate animalNameCandidate = QAnimalNameCandidate.animalNameCandidate;
+    private static final QNameVoteHistory nameVoteHistory = QNameVoteHistory.nameVoteHistory;
+    private static final QShelter shelter = QShelter.shelter;
+    private static final QUser user = QUser.user;
 
     private final JPAQueryFactory queryFactory;
 

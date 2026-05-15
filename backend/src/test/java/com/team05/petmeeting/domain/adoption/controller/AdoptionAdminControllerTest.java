@@ -8,9 +8,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.team05.petmeeting.domain.adoption.dto.request.AdoptionReviewRequest;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionReviewReq;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
 import com.team05.petmeeting.domain.adoption.service.AdoptionAdminService;
@@ -67,10 +67,10 @@ class AdoptionAdminControllerTest {
     @Test
     @DisplayName("보호소 관리자 입양 신청 목록 조회 성공")
     void getManagedShelterApplications() throws Exception {
-        AdoptionApplyResponse response = new AdoptionApplyResponse(
+        AdoptionApplyRes response = new AdoptionApplyRes(
                 10L,
                 AdoptionStatus.Processing,
-                new AdoptionApplyResponse.AnimalInfo("A-001", "믹스견", "담당보호소", "보호소장")
+                new AdoptionApplyRes.AnimalInfo("A-001", "믹스견", "담당보호소", "보호소장")
         );
         given(adoptionAdminService.getManagedShelterApplications(USER_ID, CARE_REG_NO))
                 .willReturn(List.of(response));
@@ -91,7 +91,7 @@ class AdoptionAdminControllerTest {
     void getManagedShelterApplicationDetail() throws Exception {
         Long applicationId = 10L;
         LocalDateTime createdAt = LocalDateTime.of(2026, 4, 22, 10, 0);
-        AdoptionDetailResponse response = new AdoptionDetailResponse(
+        AdoptionDetailRes response = new AdoptionDetailRes(
                 applicationId,
                 AdoptionStatus.Processing,
                 "입양하고 싶습니다.",
@@ -99,7 +99,7 @@ class AdoptionAdminControllerTest {
                 null,
                 null,
                 "010-1234-5678",
-                new AdoptionDetailResponse.AnimalInfo(
+                new AdoptionDetailRes.AnimalInfo(
                         "A-001",
                         "특이사항 없음",
                         "담당보호소",
@@ -143,7 +143,7 @@ class AdoptionAdminControllerTest {
     @DisplayName("보호소 관리자 입양 신청 상태 검토 성공")
     void reviewApplication() throws Exception {
         Long applicationId = 10L;
-        AdoptionDetailResponse response = new AdoptionDetailResponse(
+        AdoptionDetailRes response = new AdoptionDetailRes(
                 applicationId,
                 AdoptionStatus.Approved,
                 "입양하고 싶습니다.",
@@ -151,7 +151,7 @@ class AdoptionAdminControllerTest {
                 LocalDateTime.of(2026, 4, 22, 11, 0),
                 null,
                 "010-1234-5678",
-                new AdoptionDetailResponse.AnimalInfo(
+                new AdoptionDetailRes.AnimalInfo(
                         "A-001",
                         "특이사항 없음",
                         "담당보호소",
@@ -164,7 +164,7 @@ class AdoptionAdminControllerTest {
                 any(Long.class),
                 any(String.class),
                 any(Long.class),
-                any(AdoptionReviewRequest.class)
+                any(AdoptionReviewReq.class)
         )).willReturn(response);
 
         mockMvc.perform(patch("/adoptions/admin/shelters/{careRegNo}/applications/{applicationId}/review",
@@ -184,7 +184,7 @@ class AdoptionAdminControllerTest {
                 any(Long.class),
                 any(String.class),
                 any(Long.class),
-                any(AdoptionReviewRequest.class)
+                any(AdoptionReviewReq.class)
         );
     }
 

@@ -3,9 +3,9 @@ package com.team05.petmeeting.domain.adoption.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.team05.petmeeting.domain.adoption.dto.request.AdoptionReviewRequest;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionApplyResponse;
-import com.team05.petmeeting.domain.adoption.dto.response.AdoptionDetailResponse;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionReviewReq;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes;
+import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode;
@@ -66,7 +66,7 @@ class AdoptionAdminServiceTest {
                 .thenReturn(List.of(managedApplication));
 
         // when
-        List<AdoptionApplyResponse> responses =
+        List<AdoptionApplyRes> responses =
                 adoptionAdminService.getManagedShelterApplications(manager.getId(), "S-001");
 
         // then
@@ -90,7 +90,7 @@ class AdoptionAdminServiceTest {
                 .thenReturn(Optional.of(application));
 
         // when
-        AdoptionDetailResponse response =
+        AdoptionDetailRes response =
                 adoptionAdminService.getManagedShelterApplicationDetail(manager.getId(), "S-001", application.getId());
 
         // then
@@ -157,11 +157,11 @@ class AdoptionAdminServiceTest {
         when(adoptionApplicationRepository.findById(application.getId()))
                 .thenReturn(Optional.of(application));
 
-        AdoptionDetailResponse response = adoptionAdminService.reviewApplication(
+        AdoptionDetailRes response = adoptionAdminService.reviewApplication(
                 manager.getId(),
                 "S-001",
                 application.getId(),
-                new AdoptionReviewRequest(AdoptionStatus.Approved, null)
+                new AdoptionReviewReq(AdoptionStatus.Approved, null)
         );
 
         assertThat(application.getStatus()).isEqualTo(AdoptionStatus.Approved);
@@ -182,11 +182,11 @@ class AdoptionAdminServiceTest {
         when(adoptionApplicationRepository.findById(application.getId()))
                 .thenReturn(Optional.of(application));
 
-        AdoptionDetailResponse response = adoptionAdminService.reviewApplication(
+        AdoptionDetailRes response = adoptionAdminService.reviewApplication(
                 manager.getId(),
                 "S-001",
                 application.getId(),
-                new AdoptionReviewRequest(AdoptionStatus.Rejected, "조건이 맞지 않습니다.")
+                new AdoptionReviewReq(AdoptionStatus.Rejected, "조건이 맞지 않습니다.")
         );
 
         assertThat(application.getStatus()).isEqualTo(AdoptionStatus.Rejected);
@@ -209,11 +209,11 @@ class AdoptionAdminServiceTest {
         when(adoptionApplicationRepository.findById(application.getId()))
                 .thenReturn(Optional.of(application));
 
-        AdoptionDetailResponse response = adoptionAdminService.reviewApplication(
+        AdoptionDetailRes response = adoptionAdminService.reviewApplication(
                 manager.getId(),
                 "S-001",
                 application.getId(),
-                new AdoptionReviewRequest(AdoptionStatus.Processing, null)
+                new AdoptionReviewReq(AdoptionStatus.Processing, null)
         );
 
         assertThat(application.getStatus()).isEqualTo(AdoptionStatus.Processing);
@@ -240,7 +240,7 @@ class AdoptionAdminServiceTest {
                 manager.getId(),
                 "S-001",
                 application.getId(),
-                new AdoptionReviewRequest(AdoptionStatus.Rejected, " ")
+                new AdoptionReviewReq(AdoptionStatus.Rejected, " ")
         ))
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getErrorCode())
