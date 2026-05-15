@@ -3,22 +3,14 @@ package com.team05.petmeeting.domain.user.entity;
 import com.team05.petmeeting.domain.shelter.entity.Shelter;
 import com.team05.petmeeting.domain.user.role.Role;
 import com.team05.petmeeting.global.entity.BaseEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -100,6 +92,19 @@ public class User extends BaseEntity {
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    // 코틀린 컴파일러를 위해 수동 Getter 추가
+    public String getNickname() {
+        return this.nickname;
+    }
+
+    public String getProfileImageUrl() {
+        return this.profileImageUrl;
+    }
+
+    public String getEmail() {
+        return this.email;
     }
 
 }

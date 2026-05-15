@@ -242,4 +242,9 @@ public class Animal extends BaseEntity {
         }
         return this.totalCheerCount / cheerGoal * 100;
     }
+
+    // todo: kotlin 전환 후 AnimalComment refactor
+    public List<AnimalComment> getComments() {
+        return this.comments;
+    }
 }
