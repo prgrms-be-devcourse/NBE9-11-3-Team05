@@ -21,7 +21,4 @@ public class BadWord extends BaseEntity { // 금칙어 엔티티
         this.word = word;
     }
 
-    public String getWord() {
-        return word;
-    }
 }
