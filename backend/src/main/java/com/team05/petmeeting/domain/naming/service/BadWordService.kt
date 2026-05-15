@@ -42,9 +42,21 @@ class BadWordService(
         stringRedisTemplate.opsForSet().remove(BAD_WORD_KEY, badWord.word)
     }
 
-    // 3. 검증: 기존 유지
-    fun isBadWord(word: String): Boolean =
-        stringRedisTemplate.opsForSet().isMember(BAD_WORD_KEY, word) == true
+    // 3. 검증: Redis에 없으면 DB 확인 후 Redis 채우기 (방어 로직)
+    fun isBadWord(word: String): Boolean {
+        // Redis에 키 자체가 존재하는지 먼저 확인
+        val hasKey = stringRedisTemplate.hasKey(BAD_WORD_KEY)
+
+        if (hasKey == false) {
+            // Redis가 비어있다면 DB에서 복구 (Warm-up과 동일 로직)
+            val allWords = badWordRepository.findAll().map { it.word }
+            if (allWords.isNotEmpty()) {
+                stringRedisTemplate.opsForSet().add(BAD_WORD_KEY, *allWords.toTypedArray())
+            }
+        }
+
+        return stringRedisTemplate.opsForSet().isMember(BAD_WORD_KEY, word) == true
+    }
 
     fun findById(id: Long): BadWord = badWordRepository.findById(id)
         .orElseThrow { BusinessException(NamingErrorCode.BAD_WORD_NOT_FOUND) }
