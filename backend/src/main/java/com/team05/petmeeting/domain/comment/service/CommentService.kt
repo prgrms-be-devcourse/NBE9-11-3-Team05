@@ -8,7 +8,6 @@ import com.team05.petmeeting.domain.comment.dto.FeedCommentRes
 import com.team05.petmeeting.domain.comment.entity.AnimalComment
 import com.team05.petmeeting.domain.comment.entity.FeedComment
 import com.team05.petmeeting.domain.comment.entity.FeedComment.Companion.create
-import com.team05.petmeeting.domain.comment.entity.QAnimalComment.animalComment
 import com.team05.petmeeting.domain.comment.errorCode.CommentErrorCode
 import com.team05.petmeeting.domain.comment.repository.AnimalCommentRepository
 import com.team05.petmeeting.domain.comment.repository.FeedCommentRepository
@@ -50,10 +49,10 @@ class CommentService(
     @Transactional
     fun updateAnimalComment(userId: Long, commentId: Long, @Valid commentReq: CommentReq): AnimalCommentRes {
         val comment = animalCommentRepository.findById(commentId)
-            .orElseThrow<BusinessException?>(Supplier { BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) })
+            .orElseThrow{ BusinessException(CommentErrorCode.COMMENT_NOT_FOUND) }
         validateAnimalCommentAuthor(userId, comment)
         comment.updateContent(commentReq.content)
-        return from(animalCommentRepository.save<AnimalComment>(comment))
+        return from(animalCommentRepository.save(comment))
     }
 
     @Transactional
