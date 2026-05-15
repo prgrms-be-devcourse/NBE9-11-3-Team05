@@ -11,7 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.team05.petmeeting.domain.animal.dto.AnimalSyncResponse;
+import com.team05.petmeeting.domain.animal.dto.AnimalSyncRes;
 import com.team05.petmeeting.domain.animal.dto.external.AnimalApiResponse;
 import com.team05.petmeeting.domain.animal.dto.external.AnimalBody;
 import com.team05.petmeeting.domain.animal.dto.external.AnimalItem;
@@ -135,7 +135,7 @@ class AnimalSyncServiceTest {
         when(shelterRepository.findById("CARE-001")).thenReturn(Optional.of(shelter));
 
         // when
-        AnimalSyncResponse response = animalSyncService.runUpdateSync(10);
+        AnimalSyncRes response = animalSyncService.runUpdateSync(10);
 
         // then
         assertThat(response.message()).isEqualTo("UPDATE_SYNC_OK");
@@ -177,7 +177,7 @@ class AnimalSyncServiceTest {
         )).thenReturn(apiResponse(List.of()));
 
         // when
-        AnimalSyncResponse response = animalSyncService.runUpdateSync(20);
+        AnimalSyncRes response = animalSyncService.runUpdateSync(20);
 
         // then
         assertThat(response.message()).isEqualTo("UPDATE_SYNC_OK");
