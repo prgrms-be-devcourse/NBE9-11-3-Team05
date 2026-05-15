@@ -8,6 +8,7 @@ import com.team05.petmeeting.domain.naming.entity.AnimalNameCandidate
 import com.team05.petmeeting.domain.naming.entity.NameVoteHistory
 import com.team05.petmeeting.domain.user.entity.User
 import com.team05.petmeeting.domain.user.repository.UserRepository
+import com.team05.petmeeting.global.config.JpaAuditingConfig
 import com.team05.petmeeting.global.config.QueryDslConfig
 import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions
@@ -19,7 +20,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.context.annotation.Import
 
 @DataJpaTest
-@Import(QueryDslConfig::class)
+@Import(value = [QueryDslConfig::class, JpaAuditingConfig::class])
 internal class NamingRepositoryTest {
     @Autowired
     lateinit var candidateRepository: AnimalNameCandidateRepository
