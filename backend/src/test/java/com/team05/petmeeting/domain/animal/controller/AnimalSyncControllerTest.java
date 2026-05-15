@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.team05.petmeeting.domain.animal.dto.AnimalSyncResponse;
+import com.team05.petmeeting.domain.animal.dto.AnimalSyncRes;
 import com.team05.petmeeting.domain.animal.service.AnimalSyncService;
 import com.team05.petmeeting.global.security.filter.JwtAuthenticationFilter;
 import com.team05.petmeeting.global.security.util.JwtUtil;
@@ -41,7 +41,7 @@ class AnimalSyncControllerTest {
     @Test
     @DisplayName("유기동물 페이지 동기화 요청 성공")
     void syncAnimals() throws Exception {
-        AnimalSyncResponse response = new AnimalSyncResponse("동기화 완료", 3, 120L);
+        AnimalSyncRes response = new AnimalSyncRes("동기화 완료", 3, 120L);
         given(animalSyncService.fetchAndSaveAnimals(2, 30)).willReturn(response);
 
         mockMvc.perform(post("/api/v1/animals/sync")
@@ -59,7 +59,7 @@ class AnimalSyncControllerTest {
     @Test
     @DisplayName("초기 월별 동기화 요청 성공")
     void syncMonthlyFrom2008() throws Exception {
-        AnimalSyncResponse response = new AnimalSyncResponse("초기 동기화 완료", 10, 300L);
+        AnimalSyncRes response = new AnimalSyncRes("초기 동기화 완료", 10, 300L);
         given(animalSyncService.runInitialMonthlySync(500)).willReturn(response);
 
         mockMvc.perform(post("/api/v1/animals/sync/initial")
@@ -75,7 +75,7 @@ class AnimalSyncControllerTest {
     @Test
     @DisplayName("수정일 기준 동기화 요청 성공")
     void syncByUpdatedDate() throws Exception {
-        AnimalSyncResponse response = new AnimalSyncResponse("수정 동기화 완료", 5, 200L);
+        AnimalSyncRes response = new AnimalSyncRes("수정 동기화 완료", 5, 200L);
         given(animalSyncService.runUpdateSync(100)).willReturn(response);
 
         mockMvc.perform(post("/api/v1/animals/sync/update")
