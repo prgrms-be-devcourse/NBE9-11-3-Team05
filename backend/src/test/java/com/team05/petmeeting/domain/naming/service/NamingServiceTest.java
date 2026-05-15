@@ -72,7 +72,7 @@ class NamingServiceTest {
         String proposedName = "초코";
         given(animalRepository.findById(100L)).willReturn(Optional.of(animal));
         given(badWordService.isBadWord(proposedName)).willReturn(false);
-        given(candidateRepository.findByAnimalIdAndProposedName(100L, proposedName)).willReturn(Optional.empty());
+        given(candidateRepository.findByAnimalIdAndProposedName(100L, proposedName)).willReturn(null);
 
         // 이 부분이 핵심입니다: vote() 메서드 내부에서 호출되는 userRepository 조회 대응
         given(userRepository.findById(1L)).willReturn(Optional.of(user));

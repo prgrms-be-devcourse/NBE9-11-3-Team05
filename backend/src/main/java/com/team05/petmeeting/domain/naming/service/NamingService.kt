@@ -54,14 +54,12 @@ class NamingService(
         }
 
         // 해당 동물의 이름 후보 중 동일한 이름이 있는지 확인
-        val existingCandidate = candidateRepository.findByAnimalIdAndProposedName(animalId, proposedName)
-
-        if (existingCandidate.isPresent) {
-            // 이미 존재하는 이름 -> 투표로직 리다이렉트
-            val candidateId = existingCandidate.get().id
-            vote(candidateId, userId) // 내부 투표 로직 호출
-            return NameProposalRes(candidateId, proposedName)
-        }
+        candidateRepository
+            .findByAnimalIdAndProposedName(animalId, proposedName)
+            ?.let { candidate ->
+                vote(candidate.id, userId) // 내부 투표 로직 호출
+                return NameProposalRes(candidate.id, proposedName)
+            }
 
         val proposer = userRepository.findById(userId)
             .orElseThrow{ BusinessException(UserErrorCode.USER_NOT_FOUND) }
