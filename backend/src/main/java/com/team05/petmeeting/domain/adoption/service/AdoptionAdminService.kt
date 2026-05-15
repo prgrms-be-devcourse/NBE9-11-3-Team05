@@ -95,7 +95,7 @@ class AdoptionAdminService(
     // 신청 동물의 보호소가 요청한 careRegNo 보호소인지 확인한다.
     private fun isShelterApplication(application: AdoptionApplication, careRegNo: String): Boolean {
         val shelter: Shelter? = application.animal.getShelter()
-        return shelter != null && shelter.getCareRegNo() == careRegNo
+        return shelter != null && shelter.careRegNo == careRegNo
     }
 
     // 관리자 목록 조회에 필요한 최소 신청 정보로 변환한다.
