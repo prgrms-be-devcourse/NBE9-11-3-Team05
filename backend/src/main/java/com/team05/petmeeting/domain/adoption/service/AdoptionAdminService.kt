@@ -94,7 +94,7 @@ class AdoptionAdminService(
 
     // 신청 동물의 보호소가 요청한 careRegNo 보호소인지 확인한다.
     private fun isShelterApplication(application: AdoptionApplication, careRegNo: String): Boolean {
-        val shelter: Shelter? = application.animal.getShelter()
+        val shelter: Shelter? = application.animal.shelter
         return shelter != null && shelter.careRegNo == careRegNo
     }
 
@@ -102,10 +102,10 @@ class AdoptionAdminService(
     private fun toResponse(application: AdoptionApplication): AdoptionApplyRes {
         val animal: Animal = application.animal
         val animalInfo = AdoptionApplyRes.AnimalInfo(
-            animal.getDesertionNo(),
-            animal.getKindFullNm(),
-            animal.getCareNm(),
-            animal.getCareOwnerNm(),
+            animal.desertionNo,
+            animal.kindFullNm,
+            animal.careNm,
+            animal.careOwnerNm,
         )
 
         return AdoptionApplyRes(
@@ -119,12 +119,12 @@ class AdoptionAdminService(
     private fun toDetailResponse(application: AdoptionApplication): AdoptionDetailRes {
         val animal: Animal = application.animal
         val animalInfo = AdoptionDetailRes.AnimalInfo(
-            animal.getDesertionNo(),
-            animal.getSpecialMark(),
-            animal.getCareNm(),
-            animal.getCareOwnerNm(),
-            animal.getCareTel(),
-            animal.getCareAddr(),
+            animal.desertionNo,
+            animal.specialMark,
+            animal.careNm,
+            animal.careOwnerNm,
+            animal.careTel,
+            animal.careAddr,
         )
 
         return AdoptionDetailRes(
