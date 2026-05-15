@@ -118,7 +118,7 @@ class UserAuthService(
             ?: throw BusinessException(SecurityErrorCode.INVALID_TOKEN)
 
         val savedToken = refreshTokenRepository.findByToken(UUID.fromString(refreshToken))
-            .orElseThrow { BusinessException(SecurityErrorCode.INVALID_TOKEN) }
+            ?: throw BusinessException(SecurityErrorCode.INVALID_TOKEN)
 
         if (savedToken.expiresAt.isBefore(LocalDateTime.now())) {
             refreshTokenRepository.delete(savedToken)

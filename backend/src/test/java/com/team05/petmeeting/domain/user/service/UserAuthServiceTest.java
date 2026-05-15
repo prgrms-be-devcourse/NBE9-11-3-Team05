@@ -15,13 +15,13 @@ import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.errorCode.UserErrorCode;
 import com.team05.petmeeting.domain.user.provider.Provider;
+import com.team05.petmeeting.domain.user.refreshtoken.entity.RefreshToken;
 import com.team05.petmeeting.domain.user.refreshtoken.repository.RefreshTokenRepository;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.global.exception.BusinessException;
 import com.team05.petmeeting.global.security.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -235,9 +235,9 @@ class UserAuthServiceTest {
         when(request.getCookies()).thenReturn(new Cookie[]{cookie});
 
         User user = User.create("test@gmail.com", "닉네임", "홍길동");
-        var saved = com.team05.petmeeting.domain.user.refreshtoken.entity.RefreshToken.create(user, token);
+        var saved = RefreshToken.create(user, token);
 
-        when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.of(saved));
+        when(refreshTokenRepository.findByToken(token)).thenReturn(saved);
         when(jwtUtil.createToken(any(), anyList())).thenReturn("newAccess");
 
         LoginAndRefreshRes result = userAuthService.refresh(request);
