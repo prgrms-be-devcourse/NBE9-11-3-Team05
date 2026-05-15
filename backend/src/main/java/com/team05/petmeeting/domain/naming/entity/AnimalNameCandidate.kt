@@ -1,0 +1,56 @@
+package com.team05.petmeeting.domain.naming.entity
+
+import com.team05.petmeeting.domain.animal.entity.Animal
+import com.team05.petmeeting.domain.user.entity.User
+import com.team05.petmeeting.global.entity.BaseEntity
+import jakarta.persistence.*
+import lombok.AccessLevel
+import lombok.Getter
+import lombok.NoArgsConstructor
+
+@Entity
+@Table(
+    name = "animal_name_candidate",
+    uniqueConstraints =
+        [UniqueConstraint(
+            name = "uk_animal_name",
+            columnNames = ["animal_id", "proposed_name"]
+        )]
+)
+// 이름 후보 (user_id 포함)
+class AnimalNameCandidate(
+    @JoinColumn(name = "animal_id", nullable = false) // 대상 유기동물 ID
+    @ManyToOne(fetch = FetchType.LAZY)
+    val animal: Animal,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    val user: User, // 최초 작명자
+
+    @Column(nullable = false, length = 10)
+    val proposedName: String, // 제안된 이름
+) : BaseEntity() {
+    // Backing Property 방식
+
+    @Column(name = "vote_count", nullable = false)
+    private var _voteCount: Int = 0 // 현재 득표수
+
+    val voteCount: Int
+        get() = _voteCount
+
+    // 득표수 증가 메서드
+    fun addVoteCount() {
+        _voteCount++
+    }
+
+    @Column(name = "is_confirmed", nullable = false)
+    private var _isConfirmed: Boolean = false // 최종 선정 여부
+
+    val isConfirmed: Boolean
+        get() = _isConfirmed
+
+    // 이름 확정 메서드
+    fun confirmName() {
+        _isConfirmed = true
+    }
+}
