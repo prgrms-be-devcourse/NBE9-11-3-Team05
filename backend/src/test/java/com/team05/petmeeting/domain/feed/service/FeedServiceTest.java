@@ -15,7 +15,6 @@ import com.team05.petmeeting.domain.feed.enums.FeedCategory;
 import com.team05.petmeeting.domain.feed.errorCode.FeedErrorCode;
 import com.team05.petmeeting.domain.feed.repository.FeedLikeRepository;
 import com.team05.petmeeting.domain.feed.repository.FeedRepository;
-import com.team05.petmeeting.domain.feed.service.FeedService;
 import com.team05.petmeeting.domain.user.entity.User;
 import com.team05.petmeeting.global.entity.BaseEntity;
 import com.team05.petmeeting.global.exception.BusinessException;
@@ -27,11 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication;
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus;
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository;
-import java.util.List;
-import static org.mockito.Mockito.mock;
 
 class FeedServiceTest {
 
@@ -98,12 +94,12 @@ class FeedServiceTest {
         idField.setAccessible(true);
         idField.set(animal, animalId);
 
-        AdoptionApplication app = mock(AdoptionApplication.class);
-        when(app.getAnimal()).thenReturn(animal);
-
         when(animalRepository.findById(animalId)).thenReturn(Optional.of(animal));
-        when(adoptionApplicationRepository.findByUser_IdAndStatus(1L, AdoptionStatus.Approved))
-                .thenReturn(List.of(app));
+        when(adoptionApplicationRepository.existsByUser_IdAndAnimal_IdAndStatus(
+                1L,
+                animalId,
+                AdoptionStatus.Approved
+        )).thenReturn(true);
         when(feedRepository.save(any(Feed.class))).thenReturn(new Feed(user, FeedCategory.ADOPTION_REVIEW, "입양후기", "내용", null, animal));
 
         // when
@@ -154,8 +150,12 @@ class FeedServiceTest {
         Animal animal = new Animal();
 
         when(animalRepository.findById(animalId)).thenReturn(Optional.of(animal));
-        when(adoptionApplicationRepository.findByUser_IdAndStatus(1L, AdoptionStatus.Approved))
-                .thenReturn(List.of()); // 승인된 입양 없음
+        when(adoptionApplicationRepository.existsByUser_IdAndAnimal_IdAndStatus(
+                1L,
+                animalId,
+                AdoptionStatus.Approved
+        )).thenReturn(false);
+
 
         // when & then
         assertThatThrownBy(() -> feedService.write(req, user))
@@ -172,16 +172,16 @@ class FeedServiceTest {
         FeedReq req = new FeedReq(FeedCategory.ADOPTION_REVIEW, "입양후기", "내용", null, animalId);
         Animal animal = new Animal();
 
-        AdoptionApplication app = mock(AdoptionApplication.class);
-        when(app.getAnimal()).thenReturn(animal);
-
         Field idField = BaseEntity.class.getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(animal, animalId);
 
         when(animalRepository.findById(animalId)).thenReturn(Optional.of(animal));
-        when(adoptionApplicationRepository.findByUser_IdAndStatus(1L, AdoptionStatus.Approved))
-                .thenReturn(List.of(app));
+        when(adoptionApplicationRepository.existsByUser_IdAndAnimal_IdAndStatus(
+                1L,
+                animalId,
+                AdoptionStatus.Approved
+        )).thenReturn(true);
         when(feedRepository.save(any(Feed.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when & then

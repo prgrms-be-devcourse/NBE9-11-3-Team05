@@ -8,5 +8,5 @@ interface FeedRepository : JpaRepository<Feed, Long>, FeedRepositoryCustom {
 
     fun countByUser(user: User): Long
 
-    fun findAllByUserOrderByCreatedAtDesc(user: User): List<Feed>
+    fun findAllByUserOrderByCreatedAtDesc(user: User): MutableList<Feed>
 }

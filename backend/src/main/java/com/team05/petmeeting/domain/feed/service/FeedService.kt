@@ -107,7 +107,7 @@ class FeedService(
     fun getAdoptedAnimals(userId: Long): List<AdoptedAnimalRes> {
         return adoptionApplicationRepository
             .findByUser_IdAndStatus(userId, AdoptionStatus.Approved)
-            .map { AdoptedAnimalRes.from(it.getAnimal()) }
+            .map { AdoptedAnimalRes.from(it.animal) }
     }
 
     private fun validateAdoptedAnimal(user: User, animalId: Long) {
