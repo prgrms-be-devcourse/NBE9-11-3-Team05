@@ -36,7 +36,7 @@ class NamingService(
     }
 
     @Transactional(readOnly = true)
-    fun getCandidates(animalId: Long, userId: Long?): NameCandidateRes? {
+    fun getCandidates(animalId: Long, userId: Long?): NameCandidateRes {
         return candidateRepository.getCandidates(animalId, userId)
     }
 
