@@ -4,14 +4,14 @@ import com.team05.petmeeting.domain.donation.enums.DonationStatus
 import lombok.Builder
 
 @Builder
-@JvmRecord
 data class CompleteRes(
-    val id: Long?,
+    val id: Long,
     val amount: Int,
-    val status: DonationStatus?,
-    val campaignId: Long?
+    val status: DonationStatus,
+    val campaignId: Long
 ) {
     companion object {
+        @JvmStatic
         fun create(): CompleteRes {
             return CompleteRes(1L, 10000, DonationStatus.PENDING, 1L)
         }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -21,19 +22,19 @@ class DonationController(private val donationService: DonationService) {
     @PostMapping("/prepare")
     fun prepareDonation(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
-        @Valid req: @Valid PrepareReq
-    ): ResponseEntity<PrepareRes?> {
-        val res = donationService.prepare(userDetails.getUserId(), req)
-        return ResponseEntity.ok<PrepareRes?>(res)
+        @Valid @RequestBody req: PrepareReq
+    ): ResponseEntity<PrepareRes> {
+        val res = donationService.prepare(userDetails.userId, req)
+        return ResponseEntity.ok(res)
     }
 
     @Operation(summary = "결제 완료")
     @PostMapping("/complete")
     fun completeDonation(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
-        @Valid req: @Valid CompleteReq
-    ): ResponseEntity<CompleteRes?> {
-        val res = donationService.donate(userDetails.getUserId(), req)
-        return ResponseEntity.ok<CompleteRes?>(res)
+        @Valid @RequestBody req: CompleteReq
+    ): ResponseEntity<CompleteRes> {
+        val res = donationService.donate(userDetails.userId, req)
+        return ResponseEntity.ok(res)
     }
 }

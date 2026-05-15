@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class PortOneConfig {
     @Value("\${portone.api-secret}")
-    private val apiSecret: String? = null
+    lateinit var apiSecret: String
 
     @Value("\${portone.store-id}")
-    private val storeId: String? = null
+    lateinit var storeId: String
 
     @Bean
     fun portOne(): PortOneClient {
-        return PortOneClient(apiSecret!!, "https://api.portone.io", storeId)
+        return PortOneClient(apiSecret, "https://api.portone.io", storeId)
     }
 }

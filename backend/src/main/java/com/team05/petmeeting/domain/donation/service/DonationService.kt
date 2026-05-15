@@ -31,19 +31,19 @@ class DonationService(
     private val storeId: String? = null
 
     // 결제 준비 paymentId 발급
-    fun prepare(userId: Long?, req: PrepareReq): PrepareRes {
+    fun prepare(userId: Long, req: PrepareReq): PrepareRes {
         val paymentId = "payment-" + UUID.randomUUID()
         val user = userService.findById(userId)
         val campaign = campaignService.findById(req.campaignId)
 
         val donation = Donation.create(user, campaign, paymentId, req.amount)
-        donationRepository.save<Donation?>(donation)
+        donationRepository.save(donation)
 
         return PrepareRes(paymentId, req.amount)
     }
 
     // 결제 완료 + 검증
-    fun donate(userId: Long?, req: CompleteReq): CompleteRes {
+    fun donate(userId: Long, req: CompleteReq): CompleteRes {
         // todo : 검증 로직
         val donation = donationRepository.findByPaymentId(req.paymentId)
         val payment: Payment? = null
@@ -54,7 +54,7 @@ class DonationService(
             throw RuntimeException(e.message)
         }
         val paidAmount = (payment as PaidPayment).amount.total.toInt()
-        if (paidAmount != donation.getAmount()) {
+        if (paidAmount != donation.amount) {
             donation.fail()
             throw IllegalStateException("결제 금액 불일치")
         }
@@ -63,16 +63,16 @@ class DonationService(
     }
 
     // 웹훅 처리
-    fun handleWebhook(paymentId: String?) {
+    fun handleWebhook(paymentId: String) {
         // todo : webhook 검증 로직
     }
 
     // 내 후원 내역
-    fun getMyDonations(userId: Long?): UserDonationRes {
+    fun getMyDonations(userId: Long): UserDonationRes {
         val donations = donationRepository.findByUser_Id(userId)
         val totalAmount = donations.stream()
-            .filter { d: Donation? -> d!!.getStatus() == DonationStatus.PAID }
-            .mapToInt { obj: Donation? -> obj!!.getAmount() }
+            .filter { d: Donation -> d.status == DonationStatus.PAID }
+            .mapToInt { obj: Donation -> obj.amount }
             .sum()
         return UserDonationRes.of(donations.size, totalAmount, donations)
     }
