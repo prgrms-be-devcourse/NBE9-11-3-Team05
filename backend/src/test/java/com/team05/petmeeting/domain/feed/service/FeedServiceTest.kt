@@ -15,7 +15,6 @@ import com.team05.petmeeting.domain.user.entity.User
 import com.team05.petmeeting.domain.user.entity.User.Companion.create
 import com.team05.petmeeting.global.entity.BaseEntity
 import com.team05.petmeeting.global.exception.BusinessException
-import com.team05.petmeeting.global.exception.ErrorCode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -82,7 +81,7 @@ internal class FeedServiceTest {
         Mockito.`when`(animalRepository.findById(animalId)).thenReturn(Optional.of(animal))
         Mockito.`when`(
             adoptionApplicationRepository.existsByUser_IdAndAnimal_IdAndStatus(
-                1L,
+                user.id,
                 animalId,
                 AdoptionStatus.Approved
             )
@@ -105,7 +104,7 @@ internal class FeedServiceTest {
 
         assertThatThrownBy { feedService.write(req, user) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(FeedErrorCode.ANIMAL_REQUIRED)
     }
 
@@ -119,7 +118,7 @@ internal class FeedServiceTest {
 
         assertThatThrownBy { feedService.write(req, user) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(AnimalErrorCode.ANIMAL_NOT_FOUND)
     }
 
@@ -133,7 +132,7 @@ internal class FeedServiceTest {
         Mockito.`when`(animalRepository.findById(animalId)).thenReturn(Optional.of(animal))
         Mockito.`when`(
             adoptionApplicationRepository.existsByUser_IdAndAnimal_IdAndStatus(
-                1L,
+                user.id,
                 animalId,
                 AdoptionStatus.Approved
             )
@@ -141,7 +140,7 @@ internal class FeedServiceTest {
 
         assertThatThrownBy { feedService.write(req, user) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(FeedErrorCode.NOT_ADOPTED_ANIMAL)
     }
 
@@ -156,7 +155,7 @@ internal class FeedServiceTest {
         Mockito.`when`(animalRepository.findById(animalId)).thenReturn(Optional.of(animal))
         Mockito.`when`(
             adoptionApplicationRepository.existsByUser_IdAndAnimal_IdAndStatus(
-                1L,
+                user.id,
                 animalId,
                 AdoptionStatus.Approved
             )
@@ -194,7 +193,7 @@ internal class FeedServiceTest {
 
         assertThatThrownBy { feedService.modify(feedId, req, user) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(FeedErrorCode.FEED_NOT_FOUND)
     }
 
@@ -211,7 +210,7 @@ internal class FeedServiceTest {
 
         assertThatThrownBy { feedService.modify(feedId, req, user) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(FeedErrorCode.FORBIDDEN)
     }
 
@@ -237,7 +236,7 @@ internal class FeedServiceTest {
 
         assertThatThrownBy { feedService.delete(feedId, user) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(FeedErrorCode.FEED_NOT_FOUND)
     }
 
@@ -253,7 +252,7 @@ internal class FeedServiceTest {
 
         assertThatThrownBy { feedService.delete(feedId, user) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(FeedErrorCode.FORBIDDEN)
     }
 
@@ -281,7 +280,7 @@ internal class FeedServiceTest {
 
         assertThatThrownBy { feedService.getFeed(feedId) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(FeedErrorCode.FEED_NOT_FOUND)
     }
 

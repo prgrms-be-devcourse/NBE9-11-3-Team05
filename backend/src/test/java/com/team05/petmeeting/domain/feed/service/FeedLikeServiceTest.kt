@@ -10,7 +10,6 @@ import com.team05.petmeeting.domain.user.entity.User
 import com.team05.petmeeting.domain.user.entity.User.Companion.create
 import com.team05.petmeeting.global.entity.BaseEntity
 import com.team05.petmeeting.global.exception.BusinessException
-import com.team05.petmeeting.global.exception.ErrorCode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -106,7 +105,7 @@ internal class FeedLikeServiceTest {
         // when & then
         assertThatThrownBy { feedLikeService.toggleLike(feedId, user) }
             .isInstanceOf(BusinessException::class.java)
-            .extracting<ErrorCode?> { e: Throwable? -> (e as BusinessException).getErrorCode() }
+            .extracting { (it as BusinessException).getErrorCode() }
             .isEqualTo(FeedErrorCode.FEED_NOT_FOUND)
     }
 }

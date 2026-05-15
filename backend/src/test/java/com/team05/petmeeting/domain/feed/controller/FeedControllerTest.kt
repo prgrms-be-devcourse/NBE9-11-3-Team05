@@ -14,6 +14,7 @@ import com.team05.petmeeting.domain.user.entity.User
 import com.team05.petmeeting.domain.user.entity.User.Companion.create
 import com.team05.petmeeting.domain.user.repository.UserRepository
 import com.team05.petmeeting.global.exception.BusinessException
+import com.team05.petmeeting.global.security.config.JacksonConfig
 import com.team05.petmeeting.global.security.handler.JwtAuthenticationEntryPoint
 import com.team05.petmeeting.global.security.test.WithCustomUser
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails
@@ -23,10 +24,12 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
+import org.mockito.ArgumentMatchers.isNull
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
@@ -45,12 +48,14 @@ import java.util.Optional
 
 @WebMvcTest(FeedController::class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(JacksonConfig::class)
 @WithCustomUser(userId = 100L)
 internal class FeedControllerTest {
     @Autowired
     private lateinit var mvc: MockMvc
 
-    private val objectMapper = ObjectMapper()
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
     @MockitoBean
     private lateinit var userRepository: UserRepository
@@ -128,8 +133,14 @@ internal class FeedControllerTest {
     @Test
     @DisplayName("피드 목록 조회 성공")
     fun getFeeds_success() {
-        Mockito.`when`(feedService.getFeeds(anyPageable(), eq(userId), eq(null)))
-            .thenReturn(PageImpl<FeedListRes>(emptyList()))
+        Mockito.`when`(
+            feedService.getFeeds(
+                anyPageable(),
+                eq(userId),
+                isNull<FeedCategory>()
+            )
+        ).thenReturn(PageImpl<FeedListRes>(emptyList()))
+
 
         mvc.perform(get("/api/v1/feeds"))
             .andExpect(status().isOk)
