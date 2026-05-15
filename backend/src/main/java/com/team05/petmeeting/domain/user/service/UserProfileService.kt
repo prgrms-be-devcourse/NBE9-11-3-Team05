@@ -77,6 +77,8 @@ class UserProfileService(
 
     fun getMyCheerAnimals(userId: Long): UserCheerAnimalRes =
         cheerRepository.findCheerCountsByUser(getUserById(userId))
+            .map { row -> arrayOf(requireNotNull(row[0]), requireNotNull(row[1])) }
+            .toMutableList()
             .let(UserCheerAnimalRes::from)
 
     fun getUserProfile(userId: Long): UserProfileRes =
