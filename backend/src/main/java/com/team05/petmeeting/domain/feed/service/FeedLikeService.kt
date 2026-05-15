@@ -18,33 +18,24 @@ class FeedLikeService(
 
     @Transactional
     fun toggleLike(feedId: Long, user: User): FeedLikeRes {
-
         val feed = feedRepository.findById(feedId)
-            .orElseThrow {
-                BusinessException(FeedErrorCode.FEED_NOT_FOUND)
-            }
+            .orElseThrow { BusinessException(FeedErrorCode.FEED_NOT_FOUND) }
 
-        if (feedLikeRepository.existsByUserAndFeed(user, feed)) {
+        val existingLike = feedLikeRepository.findByUserAndFeed(user, feed)
 
-            val feedLike = feedLikeRepository.findByUserAndFeed(user, feed)
-                .orElseThrow()
-
-            feedLikeRepository.delete(feedLike)
-
+        val isLiked = if (existingLike.isPresent) {
+            feedLikeRepository.delete(existingLike.get())
+            false
         } else {
-
-            feedLikeRepository.save(
-                FeedLike(user, feed)
-            )
+            feedLikeRepository.save(FeedLike(user, feed))
+            true
         }
 
         val likeCount = feedLikeRepository.countByFeed(feed).toInt()
 
-        val isLiked = feedLikeRepository.existsByUserAndFeed(user, feed)
-
         return FeedLikeRes(
-            likeCount,
-            isLiked
+            likeCount = likeCount,
+            isLiked = isLiked
         )
     }
 }

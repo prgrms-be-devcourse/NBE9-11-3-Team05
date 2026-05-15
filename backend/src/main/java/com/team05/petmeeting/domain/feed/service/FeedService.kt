@@ -112,8 +112,11 @@ class FeedService(
 
     private fun validateAdoptedAnimal(user: User, animalId: Long) {
         val isApproved = adoptionApplicationRepository
-            .findByUser_IdAndStatus(user.getId(), AdoptionStatus.Approved)
-            .any { it.getAnimal().getId() == animalId }
+            .existsByUser_IdAndAnimal_IdAndStatus(
+                user.getId(),
+                animalId,
+                AdoptionStatus.Approved
+            )
 
         if (!isApproved) {
             throw BusinessException(FeedErrorCode.NOT_ADOPTED_ANIMAL)

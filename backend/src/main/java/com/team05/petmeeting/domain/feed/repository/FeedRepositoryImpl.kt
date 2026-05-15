@@ -10,6 +10,8 @@ import com.team05.petmeeting.domain.feed.dto.FeedListRes
 import com.team05.petmeeting.domain.feed.entity.QFeed
 import com.team05.petmeeting.domain.feed.entity.QFeedLike
 import com.team05.petmeeting.domain.feed.enums.FeedCategory
+import com.team05.petmeeting.domain.feed.errorCode.FeedErrorCode
+import com.team05.petmeeting.global.exception.BusinessException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -62,7 +64,7 @@ class FeedRepositoryImpl(
                 isLikedExpression
             )
             .from(feed)
-            .leftJoin(feed.user)
+            .join(feed.user)
             .leftJoin(feed.animal)
             .where(categoryEq(category))
             .orderBy(feed.createdAt.desc())
@@ -70,11 +72,20 @@ class FeedRepositoryImpl(
             .limit(pageable.pageSize.toLong())
             .fetch()
             .map { tuple ->
+                val foundFeed = tuple.get(feed)
+                    ?: throw BusinessException(FeedErrorCode.FEED_NOT_FOUND)
+
+                val authorId = tuple.get(feed.user.id)
+                    ?: throw BusinessException(FeedErrorCode.FEED_NOT_FOUND)
+
+                val nickname = tuple.get(feed.user.nickname)
+                    ?: throw BusinessException(FeedErrorCode.FEED_NOT_FOUND)
+
                 FeedListRes.from(
-                    feed = tuple.get(feed)!!,
-                    userId = tuple.get(feed.user.id)!!,
+                    feed = foundFeed,
+                    userId = authorId,
                     profileImageUrl = tuple.get(feed.user.profileImageUrl),
-                    nickname = tuple.get(feed.user.nickname)!!,
+                    nickname = nickname,
                     animalId = tuple.get(feed.animal.id),
                     likeCount = tuple.get(likeCountExpression) ?: 0L,
                     commentCount = tuple.get(commentCountExpression) ?: 0L,

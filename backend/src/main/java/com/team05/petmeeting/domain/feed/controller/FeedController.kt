@@ -12,7 +12,10 @@ import com.team05.petmeeting.domain.feed.dto.FeedRes
 import com.team05.petmeeting.domain.feed.enums.FeedCategory
 import com.team05.petmeeting.domain.feed.service.FeedLikeService
 import com.team05.petmeeting.domain.feed.service.FeedService
+import com.team05.petmeeting.domain.user.entity.User
+import com.team05.petmeeting.domain.user.errorCode.UserErrorCode
 import com.team05.petmeeting.domain.user.repository.UserRepository
+import com.team05.petmeeting.global.exception.BusinessException
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.Valid
@@ -94,7 +97,7 @@ class FeedController(
         @Valid @RequestBody request: FeedReq,
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<FeedRes> {
-        val user = userRepository.findById(userDetails.getUserId()).orElseThrow()
+        val user = getUserOrThrow(userDetails)
         val res = feedService.write(request, user)
         return ResponseEntity.status(201).body(res)
     }
@@ -106,7 +109,7 @@ class FeedController(
         @Valid @RequestBody request: FeedReq,
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<FeedRes> {
-        val user = userRepository.findById(userDetails.getUserId()).orElseThrow()
+        val user = getUserOrThrow(userDetails)
         val res = feedService.modify(feedId, request, user)
         return ResponseEntity.ok(res)
     }
@@ -117,7 +120,7 @@ class FeedController(
         @PathVariable feedId: Long,
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<Void> {
-        val user = userRepository.findById(userDetails.getUserId()).orElseThrow()
+        val user = getUserOrThrow(userDetails)
         feedService.delete(feedId, user)
         return ResponseEntity.noContent().build()
     }
@@ -149,7 +152,7 @@ class FeedController(
         @PathVariable feedId: Long,
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<FeedLikeRes> {
-        val user = userRepository.findById(userDetails.getUserId()).orElseThrow()
+        val user = getUserOrThrow(userDetails)
         val res = feedLikeService.toggleLike(feedId, user)
         return ResponseEntity.ok(res)
     }
@@ -161,5 +164,10 @@ class FeedController(
     ): ResponseEntity<List<AdoptedAnimalRes>> {
         val res = feedService.getAdoptedAnimals(userDetails.getUserId())
         return ResponseEntity.ok(res)
+    }
+
+    private fun getUserOrThrow(userDetails: CustomUserDetails): User {
+        return userRepository.findById(userDetails.getUserId())
+            .orElseThrow { BusinessException(UserErrorCode.USER_NOT_FOUND) }
     }
 }
