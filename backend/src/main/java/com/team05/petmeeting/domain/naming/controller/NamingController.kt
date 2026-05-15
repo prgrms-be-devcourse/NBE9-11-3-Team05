@@ -1,13 +1,11 @@
 package com.team05.petmeeting.domain.naming.controller
 
 import com.team05.petmeeting.domain.naming.dto.*
-import com.team05.petmeeting.domain.naming.repository.AnimalNameCandidateRepository
 import com.team05.petmeeting.domain.naming.service.NamingService
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import lombok.RequiredArgsConstructor
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/v1/naming")
 @Tag(name = "NamingController", description = "동물이름 투표(작명) API")
 class NamingController(
-    private val candidateRepository: AnimalNameCandidateRepository,
     private val namingService: NamingService
 ) {
     // 제안/투표/후보조회 API
