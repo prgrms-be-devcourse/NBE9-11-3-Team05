@@ -19,7 +19,7 @@ import java.util.Objects
 @Table(name = "animals")
 class Animal() : BaseEntity() {
     @Column(name = "desertion_no", nullable = false, length = 50, unique = true)
-    var desertionNo: String? = null
+    var desertionNo: String = ""
         protected set
 
     @Column(name = "process_state", nullable = true, length = 30)
@@ -43,11 +43,11 @@ class Animal() : BaseEntity() {
         protected set
 
     @Column(name = "up_kind_nm", nullable = true, length = 30)
-    var upKindNm: String? = null
+    var upKindNm: String = ""
         protected set
 
     @Column(name = "kind_full_name", nullable = true, length = 100)
-    var kindFullNm: String? = null
+    var kindFullNm: String = ""
         protected set
 
     @Column(name = "color_cd", nullable = true, length = 100)
@@ -67,7 +67,7 @@ class Animal() : BaseEntity() {
         protected set
 
     @Column(name = "popfile1", nullable = true, length = 500)
-    var popfile1: String? = null
+    var popfile1: String = ""
         protected set
 
     @Column(name = "popfile2", nullable = true, length = 500)
@@ -115,19 +115,19 @@ class Animal() : BaseEntity() {
         protected set
 
     private constructor(builder: Builder) : this() {
-        desertionNo = builder.desertionNo
+        desertionNo = builder.desertionNo ?: ""
         processState = builder.processState
         stateGroup = builder.stateGroup ?: determineStateGroup(builder.processState)
         noticeNo = builder.noticeNo
         noticeEdt = builder.noticeEdt
         happenPlace = builder.happenPlace
-        upKindNm = builder.upKindNm
-        kindFullNm = builder.kindFullNm
+        upKindNm = builder.upKindNm ?: ""
+        kindFullNm = builder.kindFullNm ?: ""
         colorCd = builder.colorCd
         age = builder.age
         weight = builder.weight
         sexCd = builder.sexCd
-        popfile1 = builder.popfile1
+        popfile1 = builder.popfile1 ?: ""
         popfile2 = builder.popfile2
         specialMark = builder.specialMark
         careOwnerNm = builder.careOwnerNm
@@ -154,13 +154,13 @@ class Animal() : BaseEntity() {
         noticeNo = item.noticeNo
         noticeEdt = parseNoticeEdt(item.noticeEdt)
         happenPlace = item.happenPlace
-        upKindNm = item.upKindNm
-        kindFullNm = item.kindFullNm
+        upKindNm = item.upKindNm ?: ""
+        kindFullNm = item.kindFullNm ?: ""
         colorCd = item.colorCd
         age = item.age
         weight = item.weight
         sexCd = item.sexCd
-        popfile1 = item.popfile1
+        popfile1 = item.popfile1 ?: ""
         popfile2 = item.popfile2
         specialMark = item.specialMark
         careNm = item.careNm
