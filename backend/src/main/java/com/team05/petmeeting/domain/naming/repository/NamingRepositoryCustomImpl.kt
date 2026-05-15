@@ -68,7 +68,7 @@ class NamingRepositoryCustomImpl(
                     animalNameCandidate.id,
                     animal.id,  // 2번째: animalId
                     animalNameCandidate.proposedName,
-                    user.nickname,
+                    animalNameCandidate.user.nickname,
                     animalNameCandidate.voteCount,
                     Expressions.asBoolean(false)
                 )
@@ -76,7 +76,7 @@ class NamingRepositoryCustomImpl(
             .from(animalNameCandidate)
             .join(animalNameCandidate.animal, animal)
             .join(animal.shelter, shelter)
-            .leftJoin(animalNameCandidate.user, user)
+//            .leftJoin(animalNameCandidate.user, user)  <- 불필요한 조인 주석처리
             .where(
                 shelter.careNm.eq(careNm),
                 animalNameCandidate.voteCount.goe(threshold), // Querydsl 비교연산자 greater or equal (>=)
