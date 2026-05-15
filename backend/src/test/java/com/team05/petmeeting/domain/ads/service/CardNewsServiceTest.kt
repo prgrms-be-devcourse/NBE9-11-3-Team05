@@ -47,7 +47,7 @@ internal class CardNewsServiceTest {
         Mockito.`when`(animal.sexCd).thenReturn("M")
         Mockito.`when`(animal.careNm).thenReturn("서울보호소")
         Mockito.`when`(geminiService.generate(anyString())).thenReturn("입양해주세요\n사람을 좋아해요")
-        Mockito.`when`(s3Service.upload(any(ByteArray::class.java), eq("123.png")))
+        Mockito.`when`(s3Service.upload(anyByteArray(), eqString("123.png")))
             .thenReturn("https://s3-url.com/image.png")
 
         val result = cardNewsService.generateCardNews(animal)
@@ -66,5 +66,13 @@ internal class CardNewsServiceTest {
         val imageFile = tempDir.resolve("animal.png").toFile()
         ImageIO.write(image, "png", imageFile)
         return imageFile.toURI().toURL().toString()
+    }
+
+    private fun anyByteArray(): ByteArray {
+        return any(ByteArray::class.java) ?: ByteArray(0)
+    }
+
+    private fun eqString(value: String): String {
+        return eq(value) ?: value
     }
 }
