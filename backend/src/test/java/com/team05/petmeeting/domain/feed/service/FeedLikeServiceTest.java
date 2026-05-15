@@ -67,12 +67,14 @@ class FeedLikeServiceTest {
         when(feedLikeRepository.existsByUserAndFeed(user, feed))
                 .thenReturn(false)  // 첫 번째 호출 (중복 체크)
                 .thenReturn(true);  // 두 번째 호출 (isLiked 세팅)
+        when(feedLikeRepository.save(any(FeedLike.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         FeedLikeRes res = feedLikeService.toggleLike(feedId, user);
 
         // then
-        assertThat(res.likeCount()).isEqualTo(1);
+        assertThat(res.getLikeCount()).isEqualTo(1);
         assertThat(res.isLiked()).isTrue();
         verify(feedLikeRepository).save(any(FeedLike.class)); // save 호출됐는지 확인
     }
@@ -95,7 +97,7 @@ class FeedLikeServiceTest {
         FeedLikeRes res = feedLikeService.toggleLike(feedId, user);
 
         // then
-        assertThat(res.likeCount()).isEqualTo(0);
+        assertThat(res.getLikeCount()).isEqualTo(0);
         assertThat(res.isLiked()).isFalse();
         verify(feedLikeRepository).delete(existingLike); // delete 호출됐는지 확인
         verify(feedLikeRepository, never()).save(any());  // save는 호출 안 됐는지 확인

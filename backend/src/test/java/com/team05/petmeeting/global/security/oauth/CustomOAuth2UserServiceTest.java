@@ -15,7 +15,6 @@ import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.global.security.userdetails.CustomOAuth2User;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,7 +61,7 @@ class CustomOAuth2UserServiceTest {
         OAuth2User oauthUser = mockOAuthUser(email, sub, name);
         OAuth2UserRequest request = mock(OAuth2UserRequest.class);
 
-        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.empty());
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(null);
 
         // super.loadUser 우회
         CustomOAuth2UserService spyService = spy(customOAuth2UserService);
@@ -91,7 +90,7 @@ class CustomOAuth2UserServiceTest {
         OAuth2User oauthUser = mockOAuthUser(email, sub, name);
         OAuth2UserRequest request = mock(OAuth2UserRequest.class);
 
-        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(user);
 
         CustomOAuth2UserService spyService = spy(customOAuth2UserService);
         doReturn(oauthUser).when(spyService).getOAuthUser(any());
@@ -120,7 +119,7 @@ class CustomOAuth2UserServiceTest {
         OAuth2User oauthUser = mockOAuthUser(email, sub, name);
         OAuth2UserRequest request = mock(OAuth2UserRequest.class);
 
-        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(user);
 
         CustomOAuth2UserService spyService = spy(customOAuth2UserService);
         doReturn(oauthUser).when(spyService).getOAuthUser(any());

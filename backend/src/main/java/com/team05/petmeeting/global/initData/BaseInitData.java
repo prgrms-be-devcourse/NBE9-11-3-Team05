@@ -19,6 +19,7 @@ import com.team05.petmeeting.domain.user.entity.UserAuth;
 import com.team05.petmeeting.domain.user.provider.Provider;
 import com.team05.petmeeting.domain.user.repository.UserRepository;
 import com.team05.petmeeting.domain.user.service.UserService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -28,8 +29,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Configuration
 @RequiredArgsConstructor
@@ -72,7 +71,7 @@ public class BaseInitData {
         UserAuth userAuth = UserAuth.create(Provider.LOCAL, "admin@naver.com", passwordEncoder.encode("12345678Aa!"));
         FeedRes res1 = feedService.write(new FeedReq(FeedCategory.FREE, "제목1", "내용1", null, null), user);
         FeedRes res2 = feedService.write(new FeedReq(FeedCategory.FREE, "제목2", "내용2", null, null), user);
-        commentService.createFeedComment(user.getId(), res1.feedId(), new CommentReq("댓글1"));
+        commentService.createFeedComment(user.getId(), res1.getFeedId(), new CommentReq("댓글1"));
 
     }
 
@@ -87,10 +86,15 @@ public class BaseInitData {
     // 보호소, 캠페인, 도네이션 생성
     @Transactional
     public void work3() {
-        if (shelterRepository.count() > 0) { return; }
-            Shelter shelter = shelterService.createOrUpdateShelter(new ShelterCommand("343447202600001", "음성군 동물보호센터", "043-877-3081", "충청북도 음성군 삼성면 대금로 715-5", "음성군수", "충청북도 음성군", LocalDateTime.now()));
-            User user = userService.findById(1L);
-            shelter.assignUser(user);
-            campaignService.createCampaign(shelter.getCareRegNo(), user.getId(), new CampaignCreateReq("예시 캠페인", "description", 1000000));
+        if (shelterRepository.count() > 0) {
+            return;
+        }
+        Shelter shelter = shelterService.createOrUpdateShelter(
+                new ShelterCommand("343447202600001", "음성군 동물보호센터", "043-877-3081", "충청북도 음성군 삼성면 대금로 715-5", "음성군수",
+                        "충청북도 음성군", LocalDateTime.now()));
+        User user = userService.findById(1L);
+        shelter.assignUser(user);
+        campaignService.createCampaign(shelter.getCareRegNo(), user.getId(),
+                new CampaignCreateReq("예시 캠페인", "description", 1000000));
     }
 }

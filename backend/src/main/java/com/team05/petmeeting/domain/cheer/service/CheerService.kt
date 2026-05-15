@@ -33,7 +33,7 @@ class CheerService(
         // 초기화 필요하면 응원 개수 초기화
         user.resetDailyHeartCountIfNeeded()
 
-        val usedToday = user.getDailyHeartCount()
+        val usedToday = user.dailyHeartCount
         val remainingToday = 5 - usedToday
 
         // 내일 자정 계산 (DB에 저장하지 않고, 매번 계산해서 사용)
@@ -57,7 +57,7 @@ class CheerService(
         user.resetDailyHeartCountIfNeeded()
 
         // 5회 제한 확인
-        if (user.getDailyHeartCount() >= 5) {
+        if (user.dailyHeartCount >= 5) {
             throw BusinessException(CheerErrorCode.DAILY_CHEER_LIMIT_EXCEEDED)
         }
 
@@ -78,7 +78,7 @@ class CheerService(
             animalId,
             updatedAnimal.totalCheerCount,
             updatedAnimal.getTemperature(),
-            5 - updatedUser.getDailyHeartCount()
+            5 - updatedUser.dailyHeartCount
         )
     }
 }
