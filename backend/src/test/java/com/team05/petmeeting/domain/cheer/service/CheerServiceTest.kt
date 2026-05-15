@@ -26,14 +26,14 @@ import java.util.Optional
 
 @ExtendWith(MockitoExtension::class)
 @DisplayName("CheerService 단위 테스트")
-internal class CheerServiceTest(
+internal class CheerServiceTest {
+
     @Mock
-    private val cheerRepository: CheerRepository,
+    private lateinit var cheerRepository: CheerRepository
     @Mock
-    private val userRepository: UserRepository,
+    private lateinit var userRepository: UserRepository
     @Mock
-    private val animalRepository: AnimalRepository,
-) {
+    private lateinit var animalRepository: AnimalRepository
 
     @InjectMocks
     lateinit var cheerService: CheerService

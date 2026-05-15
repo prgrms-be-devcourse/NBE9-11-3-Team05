@@ -32,14 +32,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 class CheerControllerTest {
 
     @Autowired
-    lateinit var mockMvc: MockMvc;
+    lateinit var mockMvc: MockMvc
     @MockitoBean
-    lateinit var cheerService: CheerService;
+    lateinit var cheerService: CheerService
     // 추가: 보안 필터가 요구하는 JwtUtil을 가짜 빈으로 등록
     @MockitoBean
-    lateinit var jwtUtil: JwtUtil;
+    lateinit var jwtUtil: JwtUtil
     @MockitoBean
-    lateinit var jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint;
+    lateinit var jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint
 
     private val userId = 1L // 필드로 선언하면 헬퍼 메서드에서 공유 가능
 
