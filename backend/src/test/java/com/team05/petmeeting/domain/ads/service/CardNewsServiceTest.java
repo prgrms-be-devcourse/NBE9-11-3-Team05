@@ -38,7 +38,7 @@ class CardNewsServiceTest {
 
         // then
         assertNotNull(result);
-        assertEquals("https://s3-url.com/image.png", result.imageUrl());
-        assertTrue(result.caption().contains("입양"));
+        assertEquals("https://s3-url.com/image.png", result.imageUrl);
+        assertTrue(result.caption.contains("입양"));
     }
 }
