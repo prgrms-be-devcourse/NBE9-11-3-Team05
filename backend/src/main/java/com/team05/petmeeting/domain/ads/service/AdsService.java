@@ -36,8 +36,8 @@ public class AdsService {
 
             // 2. 컨테이너 생성
             String containerResponse = instagramClient.createMediaContainer(
-                    cardNews.imageUrl(),
-                    cardNews.caption()
+                    cardNews.imageUrl,
+                    cardNews.caption
             );
             String containerId = extractId(containerResponse);
 
