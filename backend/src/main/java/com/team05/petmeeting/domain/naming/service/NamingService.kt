@@ -129,7 +129,7 @@ class NamingService(
         val animalShelter = candidate.animal.shelter
 
         // 관리자의 careRegNo 과 동물이 속한 보호소의 careRegNo 을 비교
-        if (managerShelter == null || managerShelter.careNm != animalShelter.careNm) {
+        if (managerShelter == null || managerShelter.careNm != animalShelter?.careNm) {
             throw BusinessException(NamingErrorCode.ACCESS_DENIED)
         }
 
