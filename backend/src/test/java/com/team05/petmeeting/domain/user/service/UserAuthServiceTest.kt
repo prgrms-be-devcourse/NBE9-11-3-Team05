@@ -20,13 +20,9 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyList
-import org.mockito.Mockito.doReturn
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.springframework.security.crypto.password.PasswordEncoder
-import java.util.UUID
+import java.util.*
 
 class UserAuthServiceTest {
 
@@ -189,11 +185,17 @@ class UserAuthServiceTest {
     @DisplayName("loginWithEmail - 비밀번호 틀림")
     fun login_fail_wrong_password() {
         val email = "test@gmail.com"
+        val user = User.create(email, "닉네임", "홍길동").apply {
+            addAuth(UserAuth.create(Provider.LOCAL, email, "wrongPw"))
+        }
 
-        `when`(userRepository.findByEmailWithAuths(email)).thenReturn(null)
+        `when`(userRepository.findByEmailWithAuths(email)).thenReturn(user)
+        `when`(passwordEncoder.matches("wrongPw", "encoded")).thenReturn(false)
 
-        assertThatThrownBy { userAuthService.loginWithEmail(email, "pw") }
+        assertThatThrownBy { userAuthService.loginWithEmail(email, "wrongPw") }
             .isInstanceOf(BusinessException::class.java)
+            .extracting { (it as BusinessException).errorCode }
+            .isEqualTo(UserErrorCode.LOGIN_FAILED)
     }
 
     @Test

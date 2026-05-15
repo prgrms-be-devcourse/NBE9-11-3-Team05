@@ -1,17 +1,13 @@
 package com.team05.petmeeting.domain.user.service
 
+import com.team05.petmeeting.domain.user.errorCode.UserErrorCode
+import com.team05.petmeeting.global.exception.BusinessException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.anyString
-import org.mockito.Mockito.doReturn
-import org.mockito.Mockito.eq
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.startsWith
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.data.redis.core.ValueOperations
 import java.util.concurrent.TimeUnit
@@ -154,7 +150,9 @@ class OtpServiceTest {
         `when`(redisTemplate.hasKey("otp:cooldown:$email")).thenReturn(true)
 
         assertThatThrownBy { otpService.checkCooldown(email) }
-            .isInstanceOf(RuntimeException::class.java)
+            .isInstanceOf(BusinessException::class.java)
+            .extracting { (it as BusinessException).errorCode }
+            .isEqualTo(UserErrorCode.TOO_MANY_OTP_REQUEST)
     }
 
     @Test
