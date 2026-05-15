@@ -122,7 +122,7 @@ class UserAuthServiceTest {
         EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
 
         when(otpService.getEmailByVerifyToken(token)).thenReturn("test@gmail.com");
-        when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("test@gmail.com")).thenReturn(null);
         when(passwordEncoder.encode("pw")).thenReturn("encoded");
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
@@ -140,9 +140,10 @@ class UserAuthServiceTest {
     void signup_fail_duplicate() {
         String token = "token";
         EmailSignupReq request = new EmailSignupReq(token, "pw", "닉네임", "홍길동");
+        User user = User.create("test@gmail.com", "닉네임", "홍길동");
 
         when(otpService.getEmailByVerifyToken(token)).thenReturn("test@gmail.com");
-        when(userRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(mock(User.class)));
+        when(userRepository.findByEmail("test@gmail.com")).thenReturn(user);
 
         assertThatThrownBy(() -> userAuthService.signupAndLoginWithEmail(request))
                 .isInstanceOf(BusinessException.class)
@@ -173,7 +174,7 @@ class UserAuthServiceTest {
         UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encoded");
         user.addAuth(auth);
 
-        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(user);
         when(passwordEncoder.matches("pw", "encoded")).thenReturn(true);
         when(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken");
 
@@ -192,7 +193,7 @@ class UserAuthServiceTest {
         UserAuth auth = UserAuth.create(Provider.LOCAL, email, "encoded");
         user.addAuth(auth);
 
-        when(userRepository.findByEmailWithAuths(email)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailWithAuths(email)).thenReturn(null);
         when(passwordEncoder.matches("pw", "encoded")).thenReturn(false);
 
         assertThatThrownBy(() -> userAuthService.loginWithEmail(email, "pw"))

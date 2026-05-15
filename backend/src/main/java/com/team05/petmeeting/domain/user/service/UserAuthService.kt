@@ -22,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Service
 @Transactional
@@ -36,16 +36,20 @@ class UserAuthService(
 ) {
 
     @Transactional(readOnly = true)
-    fun startEmailFlow(email: String): EmailStartRes =
-        userRepository.findByEmailWithAuths(email)
-            .map { user ->
-                val hasLocalAuth = user.userAuths.any { it.provider == Provider.LOCAL }
-                EmailStartRes(
-                    true,
-                    if (hasLocalAuth) NextStep.LOGIN_PASSWORD else NextStep.SOCIAL_LOGIN_ONLY,
-                )
-            }
-            .orElseGet { EmailStartRes(false, NextStep.SIGNUP_WITH_OTP) }
+    fun startEmailFlow(email: String): EmailStartRes {
+        val user = userRepository.findByEmailWithAuths(email)
+
+        return if (user != null) {
+            val hasLocalAuth = user.userAuths.any { it.provider == Provider.LOCAL }
+            EmailStartRes(
+                true,
+                if (hasLocalAuth) NextStep.LOGIN_PASSWORD else NextStep.SOCIAL_LOGIN_ONLY,
+            )
+        } else {
+            EmailStartRes(false, NextStep.SIGNUP_WITH_OTP)
+        }
+    }
+
 
     fun sendSignupOtp(email: String) {
         otpService.checkCooldown(email)
@@ -75,7 +79,7 @@ class UserAuthService(
         val email = otpService.getEmailByVerifyToken(request.verificationToken)
             ?: throw BusinessException(UserErrorCode.INVALID_VERIFICATION_TOKEN)
 
-        if (userRepository.findByEmail(email).isPresent) {
+        if (userRepository.findByEmail(email) != null) {
             throw BusinessException(UserErrorCode.ALREADY_REGISTERED_EMAIL)
         }
 
@@ -89,8 +93,7 @@ class UserAuthService(
     }
 
     fun loginWithEmail(email: String, password: String): LoginAndRefreshRes {
-        val user = userRepository.findByEmailWithAuths(email)
-            .orElseThrow { BusinessException(UserErrorCode.LOGIN_FAILED) }
+        val user = userRepository.findByEmailWithAuths(email) ?: throw BusinessException(UserErrorCode.LOGIN_FAILED)
 
         val auth = user.userAuths
             .firstOrNull { it.provider == Provider.LOCAL }
