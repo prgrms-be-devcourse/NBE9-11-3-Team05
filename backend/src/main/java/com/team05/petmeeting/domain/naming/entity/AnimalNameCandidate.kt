@@ -30,27 +30,22 @@ class AnimalNameCandidate(
     @Column(nullable = false, length = 10)
     val proposedName: String, // 제안된 이름
 ) : BaseEntity() {
-    // Backing Property 방식
 
-    @Column(name = "vote_count", nullable = false)
-    private var _voteCount: Int = 0 // 현재 득표수
-
-    val voteCount: Int
-        get() = _voteCount
+    @Column(nullable = false)
+    var voteCount: Int = 0 // 현재 득표수
+        protected set
 
     // 득표수 증가 메서드
     fun addVoteCount() {
-        _voteCount++
+        voteCount++
     }
 
-    @Column(name = "is_confirmed", nullable = false)
-    private var _isConfirmed: Boolean = false // 최종 선정 여부
-
-    val isConfirmed: Boolean
-        get() = _isConfirmed
+    @Column(nullable = false)
+    var isConfirmed: Boolean = false // 최종 선정 여부
+        protected set
 
     // 이름 확정 메서드
     fun confirmName() {
-        _isConfirmed = true
+        isConfirmed = true
     }
 }
