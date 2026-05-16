@@ -18,12 +18,7 @@ class JwtUtilTest {
     @BeforeEach
     fun setUp() {
         secretKey = Keys.hmacShaKeyFor("testtesttesttesttesttesttesttest".toByteArray())
-        jwtUtil = JwtUtil(secretKey)
-
-        JwtUtil::class.java.getDeclaredField("expireMillis").apply {
-            isAccessible = true
-            set(jwtUtil, 1000L * 60 * 60)
-        }
+        jwtUtil = JwtUtil(secretKey, 1000L * 60 * 60)
     }
 
     @Test

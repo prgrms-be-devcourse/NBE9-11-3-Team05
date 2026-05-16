@@ -8,16 +8,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
-import java.util.Date
+import java.util.*
 import javax.crypto.SecretKey
 
 @Component
 class JwtUtil(
     private val secretKey: SecretKey,
+    @param:Value("\${jwt.expireMillis}")
+    private var expireMillis: Long = 0
 ) {
 
-    @Value("\${jwt.expireMillis}")
-    private var expireMillis: Long = 0
 
     fun parseToken(token: String): Claims =
         Jwts.parser()
