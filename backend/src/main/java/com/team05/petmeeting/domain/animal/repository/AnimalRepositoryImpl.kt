@@ -35,7 +35,7 @@ class AnimalRepositoryImpl(
             )
             .offset(pageable.offset) // 페이지 시작위치
             .limit(pageable.pageSize.toLong()) // 페이지 사이즈
-            .orderBy(*getOrderSpecifier(pageable.sort)) // 정렬 변환 메서드 사용
+            .orderBy(*getOrderSpecifier(pageable.sort)) // 정렬 변환 메서드 사용 -> 코틀린은 배열을 가변 인자로 넘길 때 반드시 스프레드 연산자(*) 사용
             .fetch() // 쿼리 실행결과 -> 리스트
 
         // 전체 개수 조회 쿼리 (페이징에 필요)
@@ -71,15 +71,12 @@ class AnimalRepositoryImpl(
     // null 처리하는 동적 메서드
     // contains -> LIKE '%경남%' | startsWith -> LIKE '경남%'
     // 공고번호(noticeNo)의 앞부분이 지역명으로 시작하는 API 특성을 활용하여 지역 필터링 | 경남-진주-2024-00124
-    private fun regionStartsWith(region: String?): BooleanExpression? {
-        return if (StringUtils.hasText(region)) animal.noticeNo.startsWith(region) else null
-    }
+    private fun regionStartsWith(region: String?): BooleanExpression? =
+        if (StringUtils.hasText(region)) animal.noticeNo.startsWith(region) else null
 
-    private fun kindEq(kind: String?): BooleanExpression? {
-        return if (StringUtils.hasText(kind)) animal.upKindNm.eq(kind) else null
-    }
+    private fun kindEq(kind: String?): BooleanExpression? =
+        if (StringUtils.hasText(kind)) animal.upKindNm.eq(kind) else null
 
-    private fun stateGroupEq(stateGroup: Int?): BooleanExpression? {
-        return if (stateGroup != null) animal.stateGroup.eq(stateGroup) else null
-    }
+    private fun stateGroupEq(stateGroup: Int?): BooleanExpression? =
+        stateGroup?.let { animal.stateGroup.eq(it) }
 }
