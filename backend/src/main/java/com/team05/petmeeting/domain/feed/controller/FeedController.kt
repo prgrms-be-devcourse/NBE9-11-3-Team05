@@ -4,11 +4,7 @@ import com.team05.petmeeting.domain.comment.dto.CommentReq
 import com.team05.petmeeting.domain.comment.dto.FeedCommentListRes
 import com.team05.petmeeting.domain.comment.dto.FeedCommentRes
 import com.team05.petmeeting.domain.comment.service.CommentService
-import com.team05.petmeeting.domain.feed.dto.AdoptedAnimalRes
-import com.team05.petmeeting.domain.feed.dto.FeedLikeRes
-import com.team05.petmeeting.domain.feed.dto.FeedListRes
-import com.team05.petmeeting.domain.feed.dto.FeedReq
-import com.team05.petmeeting.domain.feed.dto.FeedRes
+import com.team05.petmeeting.domain.feed.dto.*
 import com.team05.petmeeting.domain.feed.enums.FeedCategory
 import com.team05.petmeeting.domain.feed.service.FeedLikeService
 import com.team05.petmeeting.domain.feed.service.FeedService
@@ -24,16 +20,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/feeds")
@@ -53,7 +40,7 @@ class FeedController(
         @Valid @RequestBody commentReq: CommentReq
     ): ResponseEntity<FeedCommentRes> {
         log.info("=============== 피드 댓글 작성 =================")
-        val res = commentService.createFeedComment(userDetails.getUserId(), feedId, commentReq)
+        val res = commentService.createFeedComment(userDetails.userId, feedId, commentReq)
         return ResponseEntity.ok(res)
     }
 
@@ -65,7 +52,7 @@ class FeedController(
         @PathVariable commentId: Long,
         @Valid @RequestBody commentReq: CommentReq
     ): ResponseEntity<FeedCommentRes> {
-        val res = commentService.updateFeedComment(userDetails.getUserId(), commentId, commentReq)
+        val res = commentService.updateFeedComment(userDetails.userId, commentId, commentReq)
         return ResponseEntity.ok(res)
     }
 
@@ -76,7 +63,7 @@ class FeedController(
         @PathVariable feedId: Long,
         @PathVariable commentId: Long
     ): ResponseEntity<Void> {
-        commentService.deleteFeedComment(userDetails.getUserId(), commentId)
+        commentService.deleteFeedComment(userDetails.userId, commentId)
         return ResponseEntity.noContent().build()
     }
 
@@ -141,7 +128,7 @@ class FeedController(
         @AuthenticationPrincipal userDetails: CustomUserDetails?,
         @RequestParam(required = false) category: FeedCategory?
     ): ResponseEntity<Page<FeedListRes>> {
-        val userId = userDetails?.getUserId()
+        val userId = userDetails?.userId
         val feeds = feedService.getFeeds(pageable, userId, category)
         return ResponseEntity.ok(feeds)
     }
@@ -162,12 +149,12 @@ class FeedController(
     fun getAdoptedAnimals(
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<List<AdoptedAnimalRes>> {
-        val res = feedService.getAdoptedAnimals(userDetails.getUserId())
+        val res = feedService.getAdoptedAnimals(userDetails.userId)
         return ResponseEntity.ok(res)
     }
 
     private fun getUserOrThrow(userDetails: CustomUserDetails): User {
-        return userRepository.findById(userDetails.getUserId())
+        return userRepository.findById(userDetails.userId)
             .orElseThrow { BusinessException(UserErrorCode.USER_NOT_FOUND) }
     }
 }
