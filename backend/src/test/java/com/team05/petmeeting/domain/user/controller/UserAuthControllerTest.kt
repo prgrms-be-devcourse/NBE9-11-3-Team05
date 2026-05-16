@@ -17,12 +17,8 @@ import com.team05.petmeeting.global.security.util.RefreshTokenUtil
 import jakarta.servlet.http.HttpServletRequest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyLong
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.doNothing
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
@@ -34,7 +30,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
+import java.util.*
 
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
@@ -175,7 +171,6 @@ class UserAuthControllerTest {
     @DisplayName("탈퇴 - 성공")
     fun withdraw() {
         doNothing().`when`(userAuthService).withdraw(anyLong())
-        doNothing().`when`(refreshTokenUtil).delete(any())
 
         mockMvc.perform(delete("/api/v1/auth/withdraw"))
             .andExpect(status().isNoContent)

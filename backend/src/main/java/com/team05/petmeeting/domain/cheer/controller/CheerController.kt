@@ -6,7 +6,6 @@ import com.team05.petmeeting.domain.cheer.service.CheerService
 import com.team05.petmeeting.global.security.userdetails.CustomUserDetails
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import lombok.RequiredArgsConstructor
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -24,7 +23,7 @@ class CheerController(
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<CheerStatusDto> {
         // Service 호출
-        val status = cheerService.getTodaysStatus(userDetails.getUserId())
+        val status = cheerService.getTodaysStatus(userDetails.userId)
         return ResponseEntity.ok(status)
     }
 
@@ -34,7 +33,7 @@ class CheerController(
         @PathVariable animalId: Long,
         @AuthenticationPrincipal userDetails: CustomUserDetails
     ): ResponseEntity<CheerRes> {
-        val cheerRes = cheerService.cheerAnimal(userDetails.getUserId(), animalId)
+        val cheerRes = cheerService.cheerAnimal(userDetails.userId, animalId)
 
         return ResponseEntity.ok(cheerRes)
     }

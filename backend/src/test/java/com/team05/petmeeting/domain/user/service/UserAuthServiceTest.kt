@@ -18,10 +18,10 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyList
+import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.test.util.ReflectionTestUtils
 import java.util.*
 
 class UserAuthServiceTest {
@@ -119,12 +119,12 @@ class UserAuthServiceTest {
     fun signup_success() {
         val token = "valid-token"
         val request = EmailSignupReq(token, "pw", "닉네임", "홍길동")
-        val user = User.create("test@gmail.com", "닉네임", "홍길동")
+        val user = User.create("test@gmail.com", "닉네임", "홍길동").withId()
 
         `when`(otpService.getEmailByVerifyToken(token)).thenReturn("test@gmail.com")
         `when`(userRepository.findByEmail("test@gmail.com")).thenReturn(null)
         `when`(passwordEncoder.encode("pw")).thenReturn("encoded")
-        `when`(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken")
+        `when`(jwtUtil.createToken(anyLong(), anyList())).thenReturn("accessToken")
         doReturn(user).`when`(userRepository).save(anyOr(user))
 
         val result = userAuthService.signupAndLoginWithEmail(request)
@@ -169,11 +169,11 @@ class UserAuthServiceTest {
         val email = "test@gmail.com"
         val user = User.create(email, "닉네임", "홍길동").apply {
             addAuth(UserAuth.create(Provider.LOCAL, email, "encoded"))
-        }
+        }.withId()
 
         `when`(userRepository.findByEmailWithAuths(email)).thenReturn(user)
         `when`(passwordEncoder.matches("pw", "encoded")).thenReturn(true)
-        `when`(jwtUtil.createToken(any(), anyList())).thenReturn("accessToken")
+        `when`(jwtUtil.createToken(anyLong(), anyList())).thenReturn("accessToken")
 
         val result = userAuthService.loginWithEmail(email, "pw")
 
@@ -230,12 +230,12 @@ class UserAuthServiceTest {
         val token = UUID.randomUUID()
         val cookie = Cookie("refreshToken", token.toString())
         val request = mock(HttpServletRequest::class.java)
-        val user = User.create("test@gmail.com", "닉네임", "홍길동")
+        val user = User.create("test@gmail.com", "닉네임", "홍길동").withId()
         val saved = RefreshToken.create(user, token)
 
         `when`(request.cookies).thenReturn(arrayOf(cookie))
         `when`(refreshTokenRepository.findByToken(token)).thenReturn(saved)
-        `when`(jwtUtil.createToken(any(), anyList())).thenReturn("newAccess")
+        `when`(jwtUtil.createToken(anyLong(), anyList())).thenReturn("newAccess")
 
         val result: LoginAndRefreshRes = userAuthService.refresh(request)
 
@@ -246,4 +246,7 @@ class UserAuthServiceTest {
 
     private inline fun <reified T : Any> anyOr(value: T): T =
         any(T::class.java) ?: value
+
+    private fun User.withId(id: Long = 1L): User =
+        apply { ReflectionTestUtils.setField(this, "id", id) }
 }
