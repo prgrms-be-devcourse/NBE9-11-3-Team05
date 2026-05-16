@@ -17,7 +17,6 @@ class ShelterController(private val shelterService: ShelterService) {
     @Operation(summary = "보호소 조회")
     @GetMapping("/{shelterId}")
     fun getShelter(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable shelterId: String
     ): ResponseEntity<ShelterRes> {
         val res = shelterService.getShelter(shelterId)
