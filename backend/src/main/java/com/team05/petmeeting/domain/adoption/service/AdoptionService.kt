@@ -68,10 +68,10 @@ class AdoptionService(
     private fun toResponse(application: AdoptionApplication): AdoptionApplyRes {
         val animal: Animal = application.animal
         val animalInfo = AdoptionApplyRes.AnimalInfo(
-            animal.getDesertionNo(),
-            animal.getKindFullNm(),
-            animal.getCareNm(),
-            animal.getCareOwnerNm(),
+            animal.desertionNo,
+            animal.kindFullNm,
+            animal.careNm,
+            animal.careOwnerNm,
         )
 
         return AdoptionApplyRes(
@@ -85,12 +85,12 @@ class AdoptionService(
     private fun toDetailResponse(application: AdoptionApplication): AdoptionDetailRes {
         val animal: Animal = application.animal
         val animalInfo = AdoptionDetailRes.AnimalInfo(
-            animal.getDesertionNo(),
-            animal.getSpecialMark(),
-            animal.getCareNm(),
-            animal.getCareOwnerNm(),
-            animal.getCareTel(),
-            animal.getCareAddr(),
+            animal.desertionNo,
+            animal.specialMark,
+            animal.careNm,
+            animal.careOwnerNm,
+            animal.careTel,
+            animal.careAddr,
         )
 
         return AdoptionDetailRes(
