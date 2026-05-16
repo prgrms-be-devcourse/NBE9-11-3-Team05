@@ -106,7 +106,7 @@ public class CampaignServiceTest {
         CampaignCreateReq req = new CampaignCreateReq("테스트 캠페인", "설명", 100000);
         CampaignCreateRes res = campaignService.createCampaign(shelterId, userId, req);
 
-        assertThat(res.title()).isEqualTo("테스트 캠페인");
+        assertThat(res.getTitle()).isEqualTo("테스트 캠페인");
     }
 
     // 캠페인 생성 실패 - 권한 없는 유저 (CA-004)
@@ -139,7 +139,7 @@ public class CampaignServiceTest {
         CampaignCreateRes created = campaignService.createCampaign(shelterId, userId, req);
 
         assertDoesNotThrow(() ->
-                campaignService.closeCampaign(userId, created.id())
+                campaignService.closeCampaign(userId, created.getId())
         );
     }
 
@@ -148,10 +148,10 @@ public class CampaignServiceTest {
     void closeCampaign_fail_alreadyClosed() {
         CampaignCreateReq req = new CampaignCreateReq("테스트 캠페인", "설명", 100000);
         CampaignCreateRes created = campaignService.createCampaign(shelterId, userId, req);
-        campaignService.closeCampaign(userId, created.id());
+        campaignService.closeCampaign(userId, created.getId());
 
         BusinessException ex = assertThrows(BusinessException.class, () ->
-                campaignService.closeCampaign(userId, created.id())
+                campaignService.closeCampaign(userId, created.getId())
         );
         assertThat(ex.getErrorCode()).isEqualTo(CampaignErrorCode.CAMPAIGN_CLOSED);
     }
@@ -163,7 +163,7 @@ public class CampaignServiceTest {
         CampaignCreateRes created = campaignService.createCampaign(shelterId, userId, req);
 
         BusinessException ex = assertThrows(BusinessException.class, () ->
-                campaignService.closeCampaign(otherUserId, created.id())
+                campaignService.closeCampaign(otherUserId, created.getId())
         );
         assertThat(ex.getErrorCode()).isEqualTo(CampaignErrorCode.UNAUTHORIZED_SHELTER);
     }
