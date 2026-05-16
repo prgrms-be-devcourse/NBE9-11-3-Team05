@@ -104,7 +104,7 @@ class AnimalServiceTest {
 
             // then
             assertThat(result.getContent()).hasSize(1);
-            assertThat(result.getContent().get(0).desertionNo()).isEqualTo("123");
+            assertThat(result.getContent().get(0).desertionNo).isEqualTo("123");
         }
 
         @Test
