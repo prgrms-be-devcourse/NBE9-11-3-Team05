@@ -2,7 +2,6 @@ package com.team05.petmeeting.domain.animal.dto
 
 import com.team05.petmeeting.domain.animal.entity.Animal
 
-@JvmRecord
 data class AnimalRes(
     val animalId: Long,
     val desertionNo: String,
