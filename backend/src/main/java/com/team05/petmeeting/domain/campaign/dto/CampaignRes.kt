@@ -3,20 +3,18 @@ package com.team05.petmeeting.domain.campaign.dto
 import com.team05.petmeeting.domain.campaign.entity.Campaign
 import com.team05.petmeeting.domain.campaign.enums.CampaignStatus
 
-@JvmRecord
 data class CampaignRes(
     val totalCampaigns: Int,
-    val campaigns: MutableList<CampaignItem?>?
+    val campaigns: List<CampaignItem>
 ) {
-    @JvmRecord
-    private data class CampaignItem(
-        val id: Long?,
-        val title: String?,
-        val description: String?,
+    data class CampaignItem(
+        val id: Long,
+        val title: String,
+        val description: String,
         val targetAmount: Int,
         val currentAmount: Int,
-        val status: CampaignStatus?,
-        val shelterId: String?
+        val status: CampaignStatus,
+        val shelterId: String
     ) {
         companion object {
             fun from(campaign: Campaign): CampaignItem {
@@ -34,9 +32,10 @@ data class CampaignRes(
     }
 
     companion object {
-        fun of(totalCampaigns: Int, campaignList: MutableList<Campaign?>): CampaignRes {
-            val items: MutableList<CampaignItem?> = campaignList.stream()
-                .map<CampaignItem?> { campaign: Campaign? -> CampaignItem.Companion.from(campaign!!) }
+        @JvmStatic
+        fun of(totalCampaigns: Int, campaignList: List<Campaign>): CampaignRes {
+            val items: List<CampaignItem> = campaignList.stream()
+                .map{ campaign: Campaign -> CampaignItem.from(campaign) }
                 .toList()
             return CampaignRes(totalCampaigns, items)
         }

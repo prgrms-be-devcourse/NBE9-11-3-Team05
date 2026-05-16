@@ -14,7 +14,6 @@ import com.team05.petmeeting.domain.shelter.service.ShelterService
 import com.team05.petmeeting.global.exception.BusinessException
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import java.util.function.Supplier
 
 @Service
 @Transactional
@@ -30,7 +29,7 @@ class CampaignService(private val campaignRepository: CampaignRepository, privat
         }
 
         val campaign = Campaign.create(shelter, req.title, req.description, req.amount)
-        campaignRepository.save<Campaign?>(campaign)
+        campaignRepository.save(campaign)
         return from(campaign)
     }
 
@@ -40,18 +39,18 @@ class CampaignService(private val campaignRepository: CampaignRepository, privat
         return CampaignDetailRes.from(campaignList)
     }
 
-    fun closeCampaign(userId: Long, id: Long?) {
+    fun closeCampaign(userId: Long, id: Long) {
         val campaign = getCampaignOrThrow(userId, id)
-        if (campaign.getStatus() != CampaignStatus.ACTIVE) {
+        if (campaign.status != CampaignStatus.ACTIVE) {
             throw BusinessException(CampaignErrorCode.CAMPAIGN_CLOSED)
         }
         campaign.close()
     }
 
-    private fun getCampaignOrThrow(userId: Long, campaignId: Long?): Campaign {
+    private fun getCampaignOrThrow(userId: Long, campaignId: Long): Campaign {
         val campaign = campaignRepository.findById(campaignId)
-            .orElseThrow<BusinessException?>(Supplier { BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND) })
-        if (!campaign.getShelter().isManagedBy(userId)) {
+            .orElseThrow { BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND) }
+        if (!campaign.shelter.isManagedBy(userId)) {
             throw BusinessException(CampaignErrorCode.UNAUTHORIZED_SHELTER)
         }
         return campaign
@@ -63,9 +62,7 @@ class CampaignService(private val campaignRepository: CampaignRepository, privat
             return of(campaigns.size, campaigns)
         }
 
-    fun findById(aLong: Long?): Campaign {
-        return campaignRepository.findById(aLong).orElseThrow<BusinessException?>(
-            Supplier { BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND) }
-        )
+    fun findById(campaignId: Long): Campaign {
+        return campaignRepository.findById(campaignId).orElseThrow{ BusinessException(CampaignErrorCode.CAMPAIGN_NOT_FOUND) }
     }
 }

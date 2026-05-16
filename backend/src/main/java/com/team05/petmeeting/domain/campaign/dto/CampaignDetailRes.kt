@@ -3,18 +3,16 @@ package com.team05.petmeeting.domain.campaign.dto
 import com.team05.petmeeting.domain.campaign.entity.Campaign
 import com.team05.petmeeting.domain.campaign.enums.CampaignStatus
 
-@JvmRecord
 data class CampaignDetailRes(
     val campaignCount: Int,
-    val campaigns: MutableList<CampaignDetailItem?>?
+    val campaigns: List<CampaignDetailItem>
 ) {
-    @JvmRecord
     data class CampaignDetailItem(
-        val id: Long?,
-        val title: String?,
+        val id: Long,
+        val title: String,
         val targetAmount: Int,
         val currentAmount: Int,
-        val status: CampaignStatus?
+        val status: CampaignStatus
     ) {
         companion object {
             fun from(campaign: Campaign): CampaignDetailItem {
@@ -30,9 +28,10 @@ data class CampaignDetailRes(
     }
 
     companion object {
-        fun from(campaign: MutableList<Campaign?>): CampaignDetailRes {
+        @JvmStatic
+        fun from(campaign: List<Campaign>): CampaignDetailRes {
             val campaignDetailItems = campaign.stream()
-                .map<CampaignDetailItem?> { campaign: Campaign? -> CampaignDetailItem.Companion.from(campaign!!) }
+                .map{ campaign: Campaign -> CampaignDetailItem.from(campaign) }
                 .toList()
             return CampaignDetailRes(campaignDetailItems.size, campaignDetailItems)
         }

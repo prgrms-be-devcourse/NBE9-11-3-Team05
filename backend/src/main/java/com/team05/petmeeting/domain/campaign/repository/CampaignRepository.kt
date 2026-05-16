@@ -8,16 +8,16 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.*
 
-interface CampaignRepository : JpaRepository<Campaign?, Long?> {
+interface CampaignRepository : JpaRepository<Campaign, Long> {
     // Shelter의 PK 필드명이 careRegNo인 경우
     @Query(
         value = "SELECT * FROM campaigns WHERE care_reg_no = :#{#shelter.careRegNo} " +
                 "ORDER BY FIELD(status, 'ACTIVE', 'COMPLETE', 'CLOSED')", nativeQuery = true
     )
-    fun findByShelterOrderByStatusNative(@Param("shelter") shelter: Shelter?): MutableList<Campaign?>?
-    fun findByShelter(shelter: Shelter?): MutableList<Campaign?>?
+    fun findByShelterOrderByStatusNative(@Param("shelter") shelter: Shelter): List<Campaign>
+    fun findByShelter(shelter: Shelter): List<Campaign>
 
-    fun existsByShelter_CareRegNoAndStatus(shelterId: String?, campaignStatus: CampaignStatus?): Boolean
+    fun existsByShelter_CareRegNoAndStatus(shelterId: String, campaignStatus: CampaignStatus): Boolean
 
-    fun findByShelter_CareRegNoAndStatus(shelterId: String?, campaignStatus: CampaignStatus?): Optional<Campaign?>?
+    fun findByShelter_CareRegNoAndStatus(shelterId: String, campaignStatus: CampaignStatus): Optional<Campaign>
 }

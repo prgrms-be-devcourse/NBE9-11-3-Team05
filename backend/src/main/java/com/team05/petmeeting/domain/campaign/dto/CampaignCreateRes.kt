@@ -3,12 +3,11 @@ package com.team05.petmeeting.domain.campaign.dto
 import com.team05.petmeeting.domain.campaign.entity.Campaign
 import com.team05.petmeeting.domain.campaign.enums.CampaignStatus
 
-@JvmRecord
 data class CampaignCreateRes(
-    @JvmField val id: Long?,
-    @JvmField val title: String?,
+    val id: Long,
+    val title: String,
     val targetAmount: Int,
-    val status: CampaignStatus?
+    val status: CampaignStatus
 ) {
     companion object {
         @JvmStatic

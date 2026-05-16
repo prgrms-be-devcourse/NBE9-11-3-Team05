@@ -9,34 +9,39 @@ import com.team05.petmeeting.domain.campaign.dto.CampaignRes.CampaignItem
 import com.team05.petmeeting.domain.campaign.enums.CampaignStatus
 import com.team05.petmeeting.domain.campaign.errorCode.CampaignErrorCode
 import com.team05.petmeeting.domain.campaign.service.CampaignService
+import com.team05.petmeeting.domain.donation.controller.DonationController
 import com.team05.petmeeting.global.exception.BusinessException
 import com.team05.petmeeting.global.security.test.WithCustomUser
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.FilterType
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithAnonymousUser
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Transactional
-@WithCustomUser(userId = 100L)
+@WebMvcTest(
+    controllers = [DonationController::class],
+    excludeAutoConfiguration = [SecurityAutoConfiguration::class],
+    excludeFilters = [ComponentScan.Filter(
+        type = FilterType.REGEX,
+        pattern = ["com\\.team05\\.petmeeting\\.global\\.security\\..*"]
+    )]
+)
+@WithCustomUser(userId = 100L) // 이미 로그인 된 사용자 만들어주는 것. api 사용하는 건 인증 된 사용자여야 해서 필요함..
 internal class CampaignControllerTest {
     @Autowired
-    private val mockMvc: MockMvc? = null
+    val mockMvc: MockMvc
 
     @MockitoBean
-    private val campaignService: CampaignService? = null
+    private val campaignService: CampaignService
 
     @Autowired
     private val objectMapper: ObjectMapper? = null

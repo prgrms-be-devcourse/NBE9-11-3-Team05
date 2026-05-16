@@ -15,32 +15,29 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1")
 class CampaignController(private val campaignService: CampaignService) {
-    @get:GetMapping("/campaigns")
-    @get:Operation(summary = "현재 진행 캠페인 전체 조회")
-    val campaigns: ResponseEntity<CampaignRes?>
-        get() {
-            val res = campaignService.allCampaigns
-            return ResponseEntity.ok<CampaignRes?>(res)
-        }
+
+    @Operation(summary = "현재 진행 캠페인 전체 조회")
+    @GetMapping("/campaigns")
+    fun getCampaigns(): ResponseEntity<CampaignRes> {
+        return ResponseEntity.ok(campaignService.allCampaigns)
+    }
 
     @Operation(summary = "보호소 캠페인 생성")
     @PostMapping("/shelters/{shelterId}/campaign")
     fun createCampaign(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable shelterId: String,
-        @Valid @RequestBody req: @Valid CampaignCreateReq
-    ): ResponseEntity<CampaignCreateRes?> {
-        val res = campaignService.createCampaign(shelterId, userDetails.getUserId(), req)
-        return ResponseEntity.ok<CampaignCreateRes?>(res)
+        @Valid @RequestBody req: CampaignCreateReq
+    ): ResponseEntity<CampaignCreateRes> {
+        return ResponseEntity.ok(campaignService.createCampaign(shelterId, userDetails.userId, req))
     }
 
     @Operation(summary = "보호소 현재 진행 캠페인 전체 조회")
     @GetMapping("/shelters/{shelterId}/campaign")
     fun getCampaign(
         @PathVariable shelterId: String
-    ): ResponseEntity<CampaignDetailRes?> {
-        val res = campaignService.getCampaign(shelterId)
-        return ResponseEntity.ok<CampaignDetailRes?>(res)
+    ): ResponseEntity<CampaignDetailRes> {
+        return ResponseEntity.ok(campaignService.getCampaign(shelterId))
     }
 
     @Operation(summary = "캠페인 상태 변경 (진행 중인 캠페인 종료)")
@@ -48,8 +45,8 @@ class CampaignController(private val campaignService: CampaignService) {
     fun closeCampaign(
         @AuthenticationPrincipal userDetails: CustomUserDetails,
         @PathVariable campaignId: Long
-    ): ResponseEntity<Void?> {
-        campaignService.closeCampaign(userDetails.getUserId(), campaignId)
-        return ResponseEntity.noContent().build<Void?>()
+    ): ResponseEntity<Void> {
+        campaignService.closeCampaign(userDetails.userId, campaignId)
+        return ResponseEntity.noContent().build()
     }
 }
