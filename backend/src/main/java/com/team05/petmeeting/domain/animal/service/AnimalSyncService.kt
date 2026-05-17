@@ -147,7 +147,7 @@ class AnimalSyncService(
         var totalSavedCount = 0
 
         while (true) {
-            val response = animalExternalService.fetchAnimalsByUpdatedDate(pageNo, numOfRows, bgupd, enupd)
+            val response = fetchUpdatedPageWithRetry(pageNo, numOfRows, bgupd, enupd)
             val items = extractItems(response)
 
             if (items.isEmpty()) {
@@ -160,6 +160,39 @@ class AnimalSyncService(
         }
 
         return totalSavedCount
+    }
+
+    // 업데이트 페이지 조회는 일시적 외부 장애에 한해 제한 횟수만큼 재시도한다.
+    private fun fetchUpdatedPageWithRetry(
+        pageNo: Int,
+        numOfRows: Int,
+        bgupd: LocalDate,
+        enupd: LocalDate,
+    ): AnimalApiResponse? {
+        repeat(UPDATE_SYNC_MAX_RETRY_COUNT) { attempt ->
+            try {
+                return animalExternalService.fetchAnimalsByUpdatedDate(pageNo, numOfRows, bgupd, enupd)
+            } catch (e: RuntimeException) {
+                val retryAttempt = attempt + 1
+                if (retryAttempt >= UPDATE_SYNC_MAX_RETRY_COUNT) {
+                    throw e
+                }
+
+                log.warn(
+                    "Animal update sync page fetch failed, retrying: pageNo={}, numOfRows={}, from={}, to={}, attempt={}/{}",
+                    pageNo,
+                    numOfRows,
+                    bgupd,
+                    enupd,
+                    retryAttempt,
+                    UPDATE_SYNC_MAX_RETRY_COUNT,
+                    e,
+                )
+                waitForRetry()
+            }
+        }
+
+        return null
     }
 
     // 일반 조회 API를 한 번 호출해 현재 페이지 저장 결과를 만든다.
@@ -354,6 +387,16 @@ class AnimalSyncService(
         }
     }
 
+    // 재시도 전 잠시 대기해 외부 API의 일시적 오류에 바로 연속 타격하지 않도록 한다.
+    private fun waitForRetry() {
+        try {
+            Thread.sleep(UPDATE_SYNC_DELAY_MS)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            throw IllegalStateException("업데이트 동기화 재시도 대기 중 인터럽트가 발생했습니다.", e)
+        }
+    }
+
     // 시작 시각부터 현재까지 걸린 시간을 밀리초로 계산한다.
     private fun elapsedMs(startedAt: Instant): Long =
         Duration.between(startedAt, Instant.now()).toMillis()
@@ -362,6 +405,7 @@ class AnimalSyncService(
         private val log = LoggerFactory.getLogger(AnimalSyncService::class.java)
         private val INITIAL_SYNC_START_DATE: LocalDate = LocalDate.of(2008, 1, 1)
         private const val UPDATE_SYNC_DELAY_MS = 300L
+        private const val UPDATE_SYNC_MAX_RETRY_COUNT = 3
         private const val SYNC_PAGE_MESSAGE = "유기동물 데이터 동기화 완료"
         private const val INITIAL_SYNC_MESSAGE = "INITIAL_MONTHLY_SYNC_OK"
         private const val UPDATE_SYNC_MESSAGE = "UPDATE_SYNC_OK"
