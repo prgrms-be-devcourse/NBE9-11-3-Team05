@@ -1,4 +1,4 @@
-package com.team05.petmeeting.domain.animal;
+package com.team05.petmeeting.domain.animal.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,7 +7,7 @@ import com.sun.net.httpserver.HttpServer;
 import com.team05.petmeeting.domain.animal.client.AnimalApiClient;
 import com.team05.petmeeting.domain.animal.config.AnimalApiProperties;
 import com.team05.petmeeting.domain.animal.dto.external.AnimalApiResponse;
-import com.team05.petmeeting.domain.animal.service.AnimalExternalService;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
