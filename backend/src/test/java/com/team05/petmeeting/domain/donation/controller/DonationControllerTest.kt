@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.any
+import org.springframework.security.test.context.support.WithAnonymousUser
 
 @WebMvcTest(
     controllers = [DonationController::class],
@@ -66,7 +67,7 @@ class DonationControllerTest {
 
     @Test
     @DisplayName("결제 완료 성공")
-    fun completeDonation_success() {
+    suspend fun completeDonation_success() {
         val req = CompleteReq("payment-123")
         val res = CompleteRes(1L, 10000, DonationStatus.PAID, 1L)
 
@@ -83,5 +84,20 @@ class DonationControllerTest {
             .andExpect(jsonPath("$.amount").value(10000))
             .andExpect(jsonPath("$.status").value("PAID"))
             .andExpect(jsonPath("$.campaignId").value(1L))
+    }
+
+
+
+    @Test
+    @DisplayName("비로그인 결제 준비 실패 (401)")
+    @WithAnonymousUser
+    fun prepareDonation_fail_unauthorized() {
+        mvc.perform(
+            post("/api/v1/donations/prepare")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(PrepareReq(1L, 10000)))
+        )
+            .andExpect(status().isUnauthorized())
     }
 }

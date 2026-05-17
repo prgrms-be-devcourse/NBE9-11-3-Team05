@@ -74,6 +74,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 
     testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
 }
 
 tasks.withType<Test> {
