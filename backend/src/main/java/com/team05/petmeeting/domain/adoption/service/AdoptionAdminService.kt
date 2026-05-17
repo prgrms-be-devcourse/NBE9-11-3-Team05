@@ -3,11 +3,12 @@ package com.team05.petmeeting.domain.adoption.service
 import com.team05.petmeeting.domain.adoption.dto.AdoptionApplyRes
 import com.team05.petmeeting.domain.adoption.dto.AdoptionDetailRes
 import com.team05.petmeeting.domain.adoption.dto.AdoptionReviewReq
+import com.team05.petmeeting.domain.adoption.dto.toApplyRes
+import com.team05.petmeeting.domain.adoption.dto.toDetailRes
 import com.team05.petmeeting.domain.adoption.entity.AdoptionApplication
 import com.team05.petmeeting.domain.adoption.entity.AdoptionStatus
 import com.team05.petmeeting.domain.adoption.errorCode.AdoptionErrorCode
 import com.team05.petmeeting.domain.adoption.repository.AdoptionApplicationRepository
-import com.team05.petmeeting.domain.animal.entity.Animal
 import com.team05.petmeeting.domain.shelter.entity.Shelter
 import com.team05.petmeeting.domain.shelter.errorCode.ShelterErrorCode
 import com.team05.petmeeting.domain.shelter.repository.ShelterRepository
@@ -26,7 +27,7 @@ class AdoptionAdminService(
         validateShelterManager(userId, careRegNo)
 
         return adoptionApplicationRepository.findByAnimal_Shelter_CareRegNo(careRegNo)
-            .map(::toResponse)
+            .map { it.toApplyRes() }
     }
 
     // careRegNo 보호소의 관리자인지 확인한 뒤 담당 보호소 신청 상세만 반환한다.
@@ -39,7 +40,7 @@ class AdoptionAdminService(
         validateShelterManager(userId, careRegNo)
 
         val application = getShelterApplication(careRegNo, applicationId)
-        return toDetailResponse(application)
+        return application.toDetailRes()
     }
 
     // careRegNo 보호소 관리자가 입양 신청 상태를 승인/거절/검토중으로 변경한다.
@@ -60,7 +61,7 @@ class AdoptionAdminService(
             AdoptionStatus.Processing -> application.markProcessing()
         }
 
-        return toDetailResponse(application)
+        return application.toDetailRes()
     }
 
     private fun rejectApplication(application: AdoptionApplication, rejectionReason: String?) {
@@ -96,46 +97,5 @@ class AdoptionAdminService(
     private fun isShelterApplication(application: AdoptionApplication, careRegNo: String): Boolean {
         val shelter: Shelter? = application.animal.shelter
         return shelter != null && shelter.careRegNo == careRegNo
-    }
-
-    // 관리자 목록 조회에 필요한 최소 신청 정보로 변환한다.
-    private fun toResponse(application: AdoptionApplication): AdoptionApplyRes {
-        val animal: Animal = application.animal
-        val animalInfo = AdoptionApplyRes.AnimalInfo(
-            animal.desertionNo,
-            animal.kindFullNm,
-            animal.careNm,
-            animal.careOwnerNm,
-        )
-
-        return AdoptionApplyRes(
-            application.getId(),
-            application.status,
-            animalInfo,
-        )
-    }
-
-    // 관리자 상세 조회에 필요한 신청, 연락처, 심사, 동물 정보를 함께 변환한다.
-    private fun toDetailResponse(application: AdoptionApplication): AdoptionDetailRes {
-        val animal: Animal = application.animal
-        val animalInfo = AdoptionDetailRes.AnimalInfo(
-            animal.desertionNo,
-            animal.specialMark,
-            animal.careNm,
-            animal.careOwnerNm,
-            animal.careTel,
-            animal.careAddr,
-        )
-
-        return AdoptionDetailRes(
-            application.getId(),
-            application.status,
-            application.applyReason,
-            application.getCreatedAt(),
-            application.reviewedAt,
-            application.rejectionReason,
-            application.applyTel,
-            animalInfo,
-        )
     }
 }
