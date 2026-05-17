@@ -72,6 +72,8 @@ dependencies {
 
     implementation("io.portone:server-sdk:0.23.0")
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+
+    testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
 }
 
 tasks.withType<Test> {
