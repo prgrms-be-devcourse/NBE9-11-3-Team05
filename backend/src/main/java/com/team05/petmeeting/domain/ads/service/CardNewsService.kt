@@ -15,29 +15,10 @@ import javax.imageio.ImageIO
 
 @Service
 class CardNewsService(
-    private val geminiService: GeminiService,
     private val s3Service: S3Service
 ) {
     fun generateCardNews(animal: Animal): CardNewsResult {
-        val kindName = animal.kindFullNm ?: "유기견"
-        val specialMark = animal.specialMark
-            ?.takeUnless { it.isBlank() || it == "." }
-            ?: "없음"
-
-        val prompt = "유기동물 입양 홍보 카피를 한국어로 작성해주세요.\n" +
-                "품종: " + kindName + "\n" +
-                "특징: " + specialMark + "\n\n" +
-                "규칙:\n" +
-                "- 한국어만 사용\n" +
-                "- 첫번째 줄: 짧고 감성적인 메인 문구\n" +
-                "- 두번째 줄: 입양을 유도하는 상세 문구\n" +
-                "- 문구 두 줄만 출력, 다른 말 하지 말것\n" +
-                "- 설명이나 번호 붙이지 말것"
-
-        var caption = geminiService.generate(prompt)
-        if (caption.length > 300) {
-            caption = caption.substring(0, 300)
-        }
+        val caption = createCaption(animal)
 
         val finalImage = createCombinedImage(animal.popfile1, caption, animal)
 
@@ -45,6 +26,58 @@ class CardNewsService(
         val uploadedUrl = s3Service.upload(finalImage, fileName)
 
         return CardNewsResult(uploadedUrl, caption)
+    }
+
+    private fun createCaption(animal: Animal): String {
+        val kind = getKindName(animal)
+        val age = getAge(animal)
+        val gender = getGender(animal)
+        val shelter = getShelterName(animal)
+        val specialMark = getSpecialMark(animal)
+
+        return """
+            새로운 가족을 기다리고 있어요.
+
+              품종: $kind
+              나이: $age
+              성별: $gender
+              보호소: $shelter
+              특징: $specialMark
+
+              이번 주 가장 많은 응원을 받은 친구예요.
+          """.trimIndent()
+    }
+
+    private fun getKindName(animal: Animal): String {
+        return animal.kindFullNm
+            .takeIf { it.isNotBlank() }
+            ?: "알 수 없음"
+    }
+
+    private fun getAge(animal: Animal): String {
+        return animal.age
+            ?.takeIf { it.isNotBlank() }
+            ?: "나이 미상"
+    }
+
+    private fun getGender(animal: Animal): String {
+        return when (animal.sexCd) {
+            "M" -> "수컷"
+            "F" -> "암컷"
+            else -> "성별 미상"
+        }
+    }
+
+    private fun getShelterName(animal: Animal): String {
+        return animal.careNm
+            ?.takeIf { it.isNotBlank() }
+            ?: "보호소 정보 없음"
+    }
+
+    private fun getSpecialMark(animal: Animal): String {
+        return animal.specialMark
+            ?.takeUnless { it.isBlank() || it == "." }
+            ?: "특징 정보 없음"
     }
 
     private fun createCombinedImage(originImageUrl: String, text: String, animal: Animal): ByteArray {
@@ -88,20 +121,20 @@ class CardNewsService(
 
             // 품종
             g.setFont(Font("Dialog", Font.BOLD, 48))
-            val breed = animal.kindFullNm ?: "알 수 없음"
+            val breed = getKindName(animal)
             g.drawString(breed, 40, imageHeight + 140)
 
             // 나이 / 성별
             g.setFont(Font("Dialog", Font.PLAIN, 36))
-            val age = animal.age ?: "미상"
-            val gender = if ("M" == animal.sexCd) "수컷" else "암컷"
+            val age = getAge(animal)
+            val gender = getGender(animal)
             g.drawString("나이: " + age + "   |   성별: " + gender, 40, imageHeight + 200)
 
             // 보호소
-            val shelter = animal.careNm ?: "미상"
+            val shelter = getShelterName(animal)
             g.drawString("보호소: " + shelter, 40, imageHeight + 260)
 
-            // Gemini 문구
+            // 홍보 문구
             g.setFont(Font("Dialog", Font.ITALIC, 32))
             g.setColor(Color(255, 100, 0))
             val lines = text.split("\n", limit = 2)

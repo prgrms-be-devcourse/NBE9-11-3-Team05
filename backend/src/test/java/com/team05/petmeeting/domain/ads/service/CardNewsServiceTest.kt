@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.InjectMocks
 import org.mockito.Mock
@@ -21,8 +20,6 @@ import javax.imageio.ImageIO
 
 @ExtendWith(MockitoExtension::class)
 internal class CardNewsServiceTest {
-    @Mock
-    private lateinit var geminiService: GeminiService
 
     @Mock
     private lateinit var s3Service: S3Service
@@ -46,14 +43,15 @@ internal class CardNewsServiceTest {
         Mockito.`when`(animal.age).thenReturn("2살")
         Mockito.`when`(animal.sexCd).thenReturn("M")
         Mockito.`when`(animal.careNm).thenReturn("서울보호소")
-        Mockito.`when`(geminiService.generate(anyString())).thenReturn("입양해주세요\n사람을 좋아해요")
         Mockito.`when`(s3Service.upload(anyByteArray(), eqString("123.png")))
             .thenReturn("https://s3-url.com/image.png")
 
         val result = cardNewsService.generateCardNews(animal)
 
         assertThat(result.imageUrl).isEqualTo("https://s3-url.com/image.png")
-        assertThat(result.caption).contains("입양")
+        assertThat(result.caption).contains("골든 리트리버")
+        assertThat(result.caption).contains("서울보호소")
+        assertThat(result.caption).contains("사람을 좋아함")
     }
 
     private fun createLocalImageUrl(): String {
