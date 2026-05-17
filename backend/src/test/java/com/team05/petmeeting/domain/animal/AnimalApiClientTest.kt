@@ -79,6 +79,7 @@ class AnimalApiClientTest {
     }
 
     private fun createAnimalApiClient(): AnimalApiClient {
+        // 각 테스트가 동일한 base URL, service key, return type 조합을 재사용하도록 묶어둔다.
         val properties = AnimalApiProperties().apply {
             baseUrl = BASE_URL
             serviceKey = "test-key"

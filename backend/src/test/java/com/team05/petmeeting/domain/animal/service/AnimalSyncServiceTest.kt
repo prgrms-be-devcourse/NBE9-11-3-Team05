@@ -243,6 +243,7 @@ class AnimalSyncServiceTest {
     }
 
     private fun apiResponse(itemList: List<AnimalItem>): AnimalApiResponse {
+        // 외부 API DTO는 setter가 없어 테스트에서는 reflection으로 중첩 응답 구조를 조립한다.
         val items = AnimalItems()
         ReflectionTestUtils.setField(items, "item", itemList)
 
@@ -269,6 +270,7 @@ class AnimalSyncServiceTest {
         updTm: String,
         careRegNo: String,
     ): AnimalItem {
+        // 실제 API 응답과 같은 모양으로 필드를 채워 Animal.from/updateFrom 테스트 데이터를 만든다.
         val item = AnimalItem()
         ReflectionTestUtils.setField(item, "desertionNo", desertionNo)
         ReflectionTestUtils.setField(item, "processState", processState)

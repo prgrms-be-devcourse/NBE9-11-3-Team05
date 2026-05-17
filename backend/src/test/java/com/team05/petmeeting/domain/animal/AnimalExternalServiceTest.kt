@@ -28,6 +28,7 @@ class AnimalExternalServiceTest {
     @Throws(IOException::class)
     fun setUp() {
         capturedQuery = AtomicReference()
+        // 실제 외부 호출 대신 로컬 HTTP 서버로 요청 쿼리와 응답 매핑을 검증한다.
         server = HttpServer.create(InetSocketAddress(0), 0).apply {
             createContext("/abandonmentPublic_v2", this@AnimalExternalServiceTest::handleAnimalRequest)
             start()
@@ -68,6 +69,7 @@ class AnimalExternalServiceTest {
             .containsEntry("bgnde", "20260401")
             .containsEntry("endde", "20260430")
 
+        // 테스트 응답 JSON은 완전한 구조로 고정돼 있으므로 여기서는 non-null 단언으로 검증을 단순화한다.
         val items = response!!.response!!.body!!.items!!.item!!
         assertThat(items).hasSize(1)
         val item = items.first()
@@ -99,6 +101,7 @@ class AnimalExternalServiceTest {
 
     @Throws(IOException::class)
     private fun handleAnimalRequest(exchange: HttpExchange) {
+        // 서비스가 실제로 보낸 raw query string을 그대로 잡아두고 assertion에 사용한다.
         capturedQuery.set(exchange.requestURI.rawQuery)
 
         val responseBody = animalApiResponseJson().toByteArray(StandardCharsets.UTF_8)
@@ -155,6 +158,7 @@ class AnimalExternalServiceTest {
         """.trimIndent()
 
     private fun parseQuery(rawQuery: String): Map<String, String> =
+        // HttpServer가 넘긴 raw query를 key/value 맵으로 바꿔 요청 파라미터를 비교한다.
         rawQuery.split("&")
             .map { it.split("=", limit = 2) }
             .associate { parts ->
