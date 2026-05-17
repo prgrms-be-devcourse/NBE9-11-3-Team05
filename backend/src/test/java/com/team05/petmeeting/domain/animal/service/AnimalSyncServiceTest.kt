@@ -220,6 +220,72 @@ class AnimalSyncServiceTest {
     }
 
     @Test
+    @DisplayName("업데이트 동기화 - 외부 API가 일시 실패하면 재시도 후 성공 시 적재를 이어간다")
+    fun runUpdateSync_retriesTransientExternalApiFailure() {
+        val lastUpdatedAt = LocalDateTime.of(2026, 4, 20, 13, 30)
+        val updateState = SyncState.create(AnimalSyncType.UPDATE).apply {
+            updateLastUpdatedAt(lastUpdatedAt)
+        }
+        val newItem = animalItem(
+            desertionNo = "D-002",
+            processState = "보호중",
+            noticeNo = "NOTICE-NEW",
+            noticeEdt = "20260430",
+            happenPlace = "신규 발견장소",
+            kindFullNm = "코리안숏헤어",
+            careNm = "새 보호소",
+            careTel = "010-2222-3333",
+            updTm = "2026-04-21 11:00:00.0",
+            careRegNo = "CARE-001",
+        )
+        val shelter = Shelter.create(
+            ShelterCommand(
+                "CARE-001",
+                "새 보호소",
+                "010-2222-3333",
+                "보호소 주소",
+                "담당자",
+                "기관",
+                LocalDateTime.of(2026, 4, 21, 10, 0),
+            ),
+        )
+
+        `when`(syncStateRepository.findBySyncType(AnimalSyncType.UPDATE)).thenReturn(Optional.of(updateState))
+        `when`(
+            animalExternalService.fetchAnimalsByUpdatedDate(
+                eq(1),
+                eq(10),
+                eq(lastUpdatedAt.toLocalDate()),
+                eq(LocalDate.now()),
+            ),
+        )
+            .thenThrow(IllegalStateException("일시 오류"))
+            .thenReturn(apiResponse(listOf(newItem)))
+        `when`(
+            animalExternalService.fetchAnimalsByUpdatedDate(
+                eq(2),
+                eq(10),
+                eq(lastUpdatedAt.toLocalDate()),
+                eq(LocalDate.now()),
+            ),
+        ).thenReturn(apiResponse(emptyList()))
+        `when`(animalRepository.findByDesertionNo("D-002")).thenReturn(Optional.empty())
+        `when`(shelterRepository.findById("CARE-001")).thenReturn(Optional.of(shelter))
+
+        val response = animalSyncService.runUpdateSync(10)
+
+        assertThat(response.message()).isEqualTo("UPDATE_SYNC_OK")
+        assertThat(response.savedCount()).isEqualTo(1)
+        verify(animalExternalService, times(2)).fetchAnimalsByUpdatedDate(
+            eq(1),
+            eq(10),
+            eq(lastUpdatedAt.toLocalDate()),
+            eq(LocalDate.now()),
+        )
+        verify(syncStateRepository).save(updateState)
+    }
+
+    @Test
     @DisplayName("페이지 동기화 - 잘못된 페이지 번호면 적재를 시작하지 않고 검증 예외를 던진다")
     fun fetchAndSaveAnimals_withInvalidPageNoThrowsBusinessException() {
         assertThatThrownBy { animalSyncService.fetchAndSaveAnimals(0, 10) }
