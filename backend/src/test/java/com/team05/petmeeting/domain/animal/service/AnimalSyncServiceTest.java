@@ -165,6 +165,59 @@ class AnimalSyncServiceTest {
     }
 
     @Test
+    @DisplayName("업데이트 동기화 - updTm에 소수점이 없어도 정상 반영한다")
+    void runUpdateSync_acceptsUpdTmWithoutFraction() {
+        LocalDateTime lastUpdatedAt = LocalDateTime.of(2026, 4, 20, 13, 30);
+        SyncState updateState = SyncState.create(AnimalSyncType.UPDATE);
+        updateState.updateLastUpdatedAt(lastUpdatedAt);
+
+        AnimalItem item = animalItem(
+                "D-003",
+                "보호중",
+                "NOTICE-003",
+                "20260430",
+                "발견장소",
+                "믹스견",
+                "보호소",
+                "010-1234-5678",
+                "2026-04-21 10:00:00",
+                "CARE-003"
+        );
+        Shelter shelter = Shelter.create(new ShelterCommand(
+                "CARE-003",
+                "보호소",
+                "010-1234-5678",
+                "보호소 주소",
+                "담당자",
+                "기관",
+                LocalDateTime.of(2026, 4, 21, 10, 0)
+        ));
+
+        when(syncStateRepository.findBySyncType(AnimalSyncType.UPDATE)).thenReturn(Optional.of(updateState));
+        when(animalExternalService.fetchAnimalsByUpdatedDate(
+                eq(1),
+                eq(10),
+                eq(lastUpdatedAt.toLocalDate()),
+                eq(LocalDate.now())
+        )).thenReturn(apiResponse(List.of(item)));
+        when(animalExternalService.fetchAnimalsByUpdatedDate(
+                eq(2),
+                eq(10),
+                eq(lastUpdatedAt.toLocalDate()),
+                eq(LocalDate.now())
+        )).thenReturn(apiResponse(List.of()));
+        when(animalRepository.findByDesertionNo("D-003")).thenReturn(Optional.empty());
+        when(shelterRepository.findById("CARE-003")).thenReturn(Optional.of(shelter));
+
+        AnimalSyncResponse response = animalSyncService.runUpdateSync(10);
+
+        assertThat(response.message()).isEqualTo("UPDATE_SYNC_OK");
+        assertThat(response.savedCount()).isEqualTo(1);
+        verify(animalRepository).save(any(Animal.class));
+        verify(shelterService).createOrUpdateShelters(anyList());
+    }
+
+    @Test
     @DisplayName("업데이트 동기화 - 마지막 UPDATE 시점이 없으면 2008-01-01부터 조회하고 상태를 새로 저장한다")
     void runUpdateSync_withoutPreviousStateStartsFromInitialDate() {
         // given

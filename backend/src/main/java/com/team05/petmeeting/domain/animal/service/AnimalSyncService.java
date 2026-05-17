@@ -21,7 +21,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.time.format.DateTimeFormatter;
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,8 +33,14 @@ import java.util.Set;
 @Service
 @Slf4j
 public class AnimalSyncService {
-    private static final LocalDate INITIAL_SYNC_START_DATE = LocalDate.of(2008, 1, 1);
+    private static final LocalDate INITIAL_SYNC_START_DATE = LocalDate.of(2025, 1, 1);
     private static final long UPDATE_SYNC_DELAY_MS = 300L;
+    private static final DateTimeFormatter API_UPDATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd HH:mm:ss")
+            .optionalStart()
+            .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+            .optionalEnd()
+            .toFormatter();
     private static final String SYNC_PAGE_MESSAGE = "유기동물 데이터 동기화 완료";
     private static final String INITIAL_SYNC_MESSAGE = "INITIAL_MONTHLY_SYNC_OK";
     private static final String UPDATE_SYNC_MESSAGE = "UPDATE_SYNC_OK";
@@ -298,19 +307,27 @@ public class AnimalSyncService {
 
     // 동물 저장 전에 보호소 정보를 먼저 upsert 한다.
     private void syncShelters(List<AnimalItem> items) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
         List<ShelterCommand> shelterCmds = items.stream()
                 .filter(item -> item.getCareRegNo() != null && !item.getCareRegNo().isBlank())
                 .filter(item -> item.getUpdTm() != null && !item.getUpdTm().isBlank())
-                .map(item -> new ShelterCommand(
-                        item.getCareRegNo(),
-                        item.getCareNm(),
-                        item.getCareTel(),
-                        item.getCareAddr(),
-                        item.getCareOwnerNm(),
-                        item.getOrgNm(),
-                        LocalDateTime.parse(item.getUpdTm(), formatter)
-                ))
+                .map(item -> {
+                    LocalDateTime updatedAt = parseApiUpdatedAt(item.getUpdTm());
+                    if (updatedAt == null) {
+                        log.warn("Skipping shelter sync for careRegNo={} due to invalid updTm={}", item.getCareRegNo(), item.getUpdTm());
+                        return null;
+                    }
+
+                    return new ShelterCommand(
+                            item.getCareRegNo(),
+                            item.getCareNm(),
+                            item.getCareTel(),
+                            item.getCareAddr(),
+                            item.getCareOwnerNm(),
+                            item.getOrgNm(),
+                            updatedAt
+                    );
+                })
+                .filter(cmd -> cmd != null)
                 .distinct()
                 .toList();
 
@@ -392,5 +409,13 @@ public class AnimalSyncService {
     // 시작 시각부터 현재까지 걸린 시간을 밀리초로 계산한다.
     private long elapsedMs(Instant startedAt) {
         return Duration.between(startedAt, Instant.now()).toMillis();
+    }
+
+    private LocalDateTime parseApiUpdatedAt(String updTm) {
+        try {
+            return LocalDateTime.parse(updTm.trim(), API_UPDATE_TIME_FORMATTER);
+        } catch (DateTimeException e) {
+            return null;
+        }
     }
 }

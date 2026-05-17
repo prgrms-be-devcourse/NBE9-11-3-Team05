@@ -7,9 +7,12 @@ import com.team05.petmeeting.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +24,12 @@ import java.util.Objects;
 @Builder //
 @AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더를 위해 모든 필드 생성자 필요
 public class Animal extends BaseEntity {
+    private static final DateTimeFormatter API_UPDATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd HH:mm:ss")
+            .optionalStart()
+            .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+            .optionalEnd()
+            .toFormatter();
 
     @Column(name = "desertion_no", nullable = false, length = 50, unique = true)
     private String desertionNo; // 유기번호
@@ -150,10 +159,11 @@ public class Animal extends BaseEntity {
             return null;
         }
 
-        return LocalDateTime.parse(
-                updTm,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
-        );
+        try {
+            return LocalDateTime.parse(updTm.trim(), API_UPDATE_TIME_FORMATTER);
+        } catch (DateTimeException e) {
+            return null;
+        }
     }
 
     private Animal(
