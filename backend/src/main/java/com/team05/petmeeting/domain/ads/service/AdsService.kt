@@ -1,5 +1,6 @@
 package com.team05.petmeeting.domain.ads.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.team05.petmeeting.domain.ads.client.InstagramClient
 import com.team05.petmeeting.domain.animal.entity.Animal
 import com.team05.petmeeting.domain.animal.repository.AnimalRepository
@@ -10,7 +11,8 @@ import org.springframework.stereotype.Service
 class AdsService(
     private val animalRepository: AnimalRepository,
     private val cardNewsService: CardNewsService,
-    private val instagramClient: InstagramClient
+    private val instagramClient: InstagramClient,
+    private val objectMapper: ObjectMapper
 ) {
     // Top N 동물 조회 (보호중인 동물만)
     fun getTopAnimals(n: Int): List<Animal> {
@@ -45,9 +47,14 @@ class AdsService(
     }
 
     private fun extractId(response: String): String {
-        return response.replace("{\"id\":\"", "")
-            .replace("\"}", "")
-            .trim()
+        return try {
+            objectMapper.readTree(response)
+                .path("id")
+                .asText(null)
+                ?: throw IllegalStateException("인스타그램 응답에서 id를 찾을 수 없습니다.")
+        } catch (e: Exception) {
+            throw IllegalStateException("인스타그램 미디어 컨테이너 ID 추출 실패", e)
+        }
     }
 
     // @Scheduled(cron = "0 0 9 * * MON") // 매주 월요일 오전 9시 스프링이 직접 자동 실행하는 어노테이션, 일단 주석처리

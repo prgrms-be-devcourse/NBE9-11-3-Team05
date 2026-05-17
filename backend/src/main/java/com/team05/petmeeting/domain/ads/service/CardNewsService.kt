@@ -10,7 +10,7 @@ import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.net.URL
+import java.net.URI
 import javax.imageio.ImageIO
 
 @Service
@@ -49,7 +49,7 @@ class CardNewsService(
 
     private fun createCombinedImage(originImageUrl: String, text: String, animal: Animal): ByteArray {
         try {
-            val url = URL(originImageUrl)
+            val url = URI.create(originImageUrl).toURL()
             val animalImage = ImageIO.read(url)
 
             if (animalImage == null) {
@@ -117,6 +117,8 @@ class CardNewsService(
             ImageIO.write(card, "png", baos)
             return baos.toByteArray()
         } catch (e: IOException) {
+            throw RuntimeException("이미지 합성 중 오류 발생", e)
+        } catch (e: IllegalArgumentException) {
             throw RuntimeException("이미지 합성 중 오류 발생", e)
         }
     }

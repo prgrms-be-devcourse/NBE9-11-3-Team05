@@ -6,14 +6,14 @@ import java.awt.Font
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.net.URL
+import java.net.URI
 import javax.imageio.ImageIO
 
 @Component
 class ImageComposer {
     fun compose(originImageUrl: String, text: String): ByteArray {
         try {
-            val url = URL(originImageUrl)
+            val url = URI.create(originImageUrl).toURL()
             val originalImage = ImageIO.read(url)
 
             if (originalImage == null) {
@@ -50,6 +50,8 @@ class ImageComposer {
             ImageIO.write(combined, "png", baos)
             return baos.toByteArray()
         } catch (e: IOException) {
+            throw RuntimeException("이미지 합성 중 오류 발생", e)
+        } catch (e: IllegalArgumentException) {
             throw RuntimeException("이미지 합성 중 오류 발생", e)
         }
     }

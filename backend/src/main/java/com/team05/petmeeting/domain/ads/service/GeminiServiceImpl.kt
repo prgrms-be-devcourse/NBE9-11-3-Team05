@@ -32,12 +32,13 @@ class GeminiServiceImpl(
         try {
             val root = objectMapper.readTree(response)
             return root.path("candidates")
-                .get(0)
+                .path(0)
                 .path("content")
                 .path("parts")
-                .get(0)
+                .path(0)
                 .path("text")
-                .asText()
+                .asText(null)
+                ?: throw RuntimeException("Gemini 응답에서 text를 찾을 수 없습니다.")
         } catch (e: Exception) {
             throw RuntimeException("Gemini 파싱 실패", e)
         }
