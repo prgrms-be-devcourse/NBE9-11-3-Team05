@@ -42,7 +42,7 @@ class CardNewsService(
             ?: "특징 정보 없음"
 
         return """
-            이번 주 많은 응원을 받은 친구를 소개합니다.
+            새로운 가족을 기다리고 있어요.
 
               품종: $kind
               나이: $age
@@ -50,7 +50,7 @@ class CardNewsService(
               보호소: $shelter
               특징: $specialMark
 
-              따뜻한 가족을 기다리고 있어요.
+              이번 주 가장 많은 응원을 받은 친구예요.
           """.trimIndent()
     }
 
