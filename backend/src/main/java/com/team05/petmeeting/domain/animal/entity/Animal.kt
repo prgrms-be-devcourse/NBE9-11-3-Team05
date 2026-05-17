@@ -10,9 +10,12 @@ import jakarta.persistence.Entity
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoField
 import java.util.Objects
 
 @Entity
@@ -247,6 +250,13 @@ class Animal() : BaseEntity() {
     }
 
     companion object {
+        private val API_UPDATE_TIME_FORMATTER = DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd HH:mm:ss")
+            .optionalStart()
+            .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+            .optionalEnd()
+            .toFormatter()
+
         @JvmStatic
         fun builder(): Builder = Builder()
 
@@ -283,10 +293,11 @@ class Animal() : BaseEntity() {
                 return null
             }
 
-            return LocalDateTime.parse(
-                updTm,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S"),
-            )
+            return try {
+                LocalDateTime.parse(updTm.trim(), API_UPDATE_TIME_FORMATTER)
+            } catch (_: DateTimeException) {
+                null
+            }
         }
 
         private fun parseNoticeEdt(noticeEdt: String?): LocalDate? {

@@ -16,11 +16,14 @@ import com.team05.petmeeting.domain.shelter.service.ShelterService
 import com.team05.petmeeting.global.exception.BusinessException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.DateTimeException
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoField
 
 @Service
 class AnimalSyncService(
@@ -303,11 +306,16 @@ class AnimalSyncService(
 
     // 동물 저장 전에 보호소 정보를 먼저 upsert 한다.
     private fun syncShelters(items: List<AnimalItem>) {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
         val shelterCmds = items.asSequence()
             .filter { !it.careRegNo.isNullOrBlank() }
             .filter { !it.updTm.isNullOrBlank() }
             .map {
+                val updatedAt = parseApiUpdatedAt(it.updTm)
+                if (updatedAt == null) {
+                    log.warn("Skipping shelter sync for careRegNo={} due to invalid updTm={}", it.careRegNo, it.updTm)
+                    return@map null
+                }
+
                 ShelterCommand(
                     it.careRegNo!!,
                     it.careNm,
@@ -315,9 +323,10 @@ class AnimalSyncService(
                     it.careAddr,
                     it.careOwnerNm,
                     it.orgNm,
-                    LocalDateTime.parse(it.updTm, formatter),
+                    updatedAt,
                 )
             }
+            .filterNotNull()
             .distinct()
             .toList()
 
@@ -401,9 +410,27 @@ class AnimalSyncService(
     private fun elapsedMs(startedAt: Instant): Long =
         Duration.between(startedAt, Instant.now()).toMillis()
 
+    private fun parseApiUpdatedAt(updTm: String?): LocalDateTime? {
+        if (updTm.isNullOrBlank()) {
+            return null
+        }
+
+        return try {
+            LocalDateTime.parse(updTm.trim(), API_UPDATE_TIME_FORMATTER)
+        } catch (_: DateTimeException) {
+            null
+        }
+    }
+
     companion object {
         private val log = LoggerFactory.getLogger(AnimalSyncService::class.java)
-        private val INITIAL_SYNC_START_DATE: LocalDate = LocalDate.of(2008, 1, 1)
+        private val INITIAL_SYNC_START_DATE: LocalDate = LocalDate.of(2025, 1, 1)
+        private val API_UPDATE_TIME_FORMATTER = DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd HH:mm:ss")
+            .optionalStart()
+            .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+            .optionalEnd()
+            .toFormatter()
         private const val UPDATE_SYNC_DELAY_MS = 300L
         private const val UPDATE_SYNC_MAX_RETRY_COUNT = 3
         private const val SYNC_PAGE_MESSAGE = "유기동물 데이터 동기화 완료"

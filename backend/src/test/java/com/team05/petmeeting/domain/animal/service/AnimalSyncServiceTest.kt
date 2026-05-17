@@ -168,6 +168,66 @@ class AnimalSyncServiceTest {
     }
 
     @Test
+    @DisplayName("업데이트 동기화 - updTm에 소수점이 없어도 정상 반영한다")
+    fun runUpdateSync_acceptsUpdTmWithoutFraction() {
+        val lastUpdatedAt = LocalDateTime.of(2026, 4, 20, 13, 30)
+        val today = LocalDate.now()
+        val updateState = SyncState.create(AnimalSyncType.UPDATE).apply {
+            updateLastUpdatedAt(lastUpdatedAt)
+        }
+        val item = animalItem(
+            desertionNo = "D-003",
+            processState = "보호중",
+            noticeNo = "NOTICE-003",
+            noticeEdt = "20260430",
+            happenPlace = "발견장소",
+            kindFullNm = "믹스견",
+            careNm = "보호소",
+            careTel = "010-1234-5678",
+            updTm = "2026-04-21 10:00:00",
+            careRegNo = "CARE-003",
+        )
+        val shelter = Shelter.create(
+            ShelterCommand(
+                "CARE-003",
+                "보호소",
+                "010-1234-5678",
+                "보호소 주소",
+                "담당자",
+                "기관",
+                LocalDateTime.of(2026, 4, 21, 10, 0),
+            ),
+        )
+
+        `when`(syncStateRepository.findBySyncType(AnimalSyncType.UPDATE)).thenReturn(Optional.of(updateState))
+        `when`(
+            animalExternalService.fetchAnimalsByUpdatedDate(
+                eq(1),
+                eq(10),
+                eq(lastUpdatedAt.toLocalDate()),
+                eq(today),
+            ),
+        ).thenReturn(apiResponse(listOf(item)))
+        `when`(
+            animalExternalService.fetchAnimalsByUpdatedDate(
+                eq(2),
+                eq(10),
+                eq(lastUpdatedAt.toLocalDate()),
+                eq(today),
+            ),
+        ).thenReturn(apiResponse(emptyList()))
+        `when`(animalRepository.findByDesertionNo("D-003")).thenReturn(Optional.empty())
+        `when`(shelterRepository.findById("CARE-003")).thenReturn(Optional.of(shelter))
+
+        val response = animalSyncService.runUpdateSync(10)
+
+        assertThat(response.message()).isEqualTo("UPDATE_SYNC_OK")
+        assertThat(response.savedCount()).isEqualTo(1)
+        verify(animalRepository).save(any(Animal::class.java))
+        verify(shelterService).createOrUpdateShelters(anyList<ShelterCommand>())
+    }
+
+    @Test
     @DisplayName("업데이트 동기화 - 마지막 UPDATE 시점이 없으면 2008-01-01부터 조회하고 상태를 새로 저장한다")
     fun runUpdateSync_withoutPreviousStateStartsFromInitialDate() {
         val today = LocalDate.now()
@@ -176,7 +236,7 @@ class AnimalSyncServiceTest {
             animalExternalService.fetchAnimalsByUpdatedDate(
                 eq(1),
                 eq(20),
-                eq(LocalDate.of(2008, 1, 1)),
+                eq(LocalDate.of(2025, 1, 1)),
                 eq(today),
             ),
         ).thenReturn(apiResponse(emptyList()))
