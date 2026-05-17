@@ -64,6 +64,7 @@ class AnimalSyncServiceTest {
     @DisplayName("업데이트 동기화 - 마지막 UPDATE 시점 이후 데이터를 기존 동물 갱신과 신규 동물 저장으로 반영한다")
     fun runUpdateSync_updatesExistingAndCreatesNewAnimal() {
         val lastUpdatedAt = LocalDateTime.of(2026, 4, 20, 13, 30)
+        val today = LocalDate.now()
         val updateState = SyncState.create(AnimalSyncType.UPDATE).apply {
             updateLastUpdatedAt(lastUpdatedAt)
         }
@@ -125,7 +126,7 @@ class AnimalSyncServiceTest {
                 eq(1),
                 eq(10),
                 eq(lastUpdatedAt.toLocalDate()),
-                eq(LocalDate.now()),
+                eq(today),
             ),
         ).thenReturn(apiResponse(listOf(updatedItem, newItem)))
         `when`(
@@ -133,7 +134,7 @@ class AnimalSyncServiceTest {
                 eq(2),
                 eq(10),
                 eq(lastUpdatedAt.toLocalDate()),
-                eq(LocalDate.now()),
+                eq(today),
             ),
         ).thenReturn(apiResponse(emptyList()))
         `when`(animalRepository.findByDesertionNo("D-001")).thenReturn(Optional.of(existingAnimal))
@@ -169,13 +170,14 @@ class AnimalSyncServiceTest {
     @Test
     @DisplayName("업데이트 동기화 - 마지막 UPDATE 시점이 없으면 2008-01-01부터 조회하고 상태를 새로 저장한다")
     fun runUpdateSync_withoutPreviousStateStartsFromInitialDate() {
+        val today = LocalDate.now()
         `when`(syncStateRepository.findBySyncType(AnimalSyncType.UPDATE)).thenReturn(Optional.empty())
         `when`(
             animalExternalService.fetchAnimalsByUpdatedDate(
                 eq(1),
                 eq(20),
                 eq(LocalDate.of(2008, 1, 1)),
-                eq(LocalDate.now()),
+                eq(today),
             ),
         ).thenReturn(apiResponse(emptyList()))
 
@@ -196,6 +198,7 @@ class AnimalSyncServiceTest {
     @DisplayName("업데이트 동기화 - 외부 API 오류가 발생하면 업데이트 실패 예외로 변환하고 상태를 갱신하지 않는다")
     fun runUpdateSync_whenExternalApiFailsThrowsBusinessException() {
         val lastUpdatedAt = LocalDateTime.of(2026, 4, 20, 13, 30)
+        val today = LocalDate.now()
         val updateState = SyncState.create(AnimalSyncType.UPDATE).apply {
             updateLastUpdatedAt(lastUpdatedAt)
         }
@@ -206,7 +209,7 @@ class AnimalSyncServiceTest {
                 eq(1),
                 eq(10),
                 eq(lastUpdatedAt.toLocalDate()),
-                eq(LocalDate.now()),
+                eq(today),
             ),
         ).thenThrow(IllegalStateException("외부 API 오류"))
 
@@ -223,6 +226,7 @@ class AnimalSyncServiceTest {
     @DisplayName("업데이트 동기화 - 외부 API가 일시 실패하면 재시도 후 성공 시 적재를 이어간다")
     fun runUpdateSync_retriesTransientExternalApiFailure() {
         val lastUpdatedAt = LocalDateTime.of(2026, 4, 20, 13, 30)
+        val today = LocalDate.now()
         val updateState = SyncState.create(AnimalSyncType.UPDATE).apply {
             updateLastUpdatedAt(lastUpdatedAt)
         }
@@ -256,7 +260,7 @@ class AnimalSyncServiceTest {
                 eq(1),
                 eq(10),
                 eq(lastUpdatedAt.toLocalDate()),
-                eq(LocalDate.now()),
+                eq(today),
             ),
         )
             .thenThrow(IllegalStateException("일시 오류"))
@@ -266,7 +270,7 @@ class AnimalSyncServiceTest {
                 eq(2),
                 eq(10),
                 eq(lastUpdatedAt.toLocalDate()),
-                eq(LocalDate.now()),
+                eq(today),
             ),
         ).thenReturn(apiResponse(emptyList()))
         `when`(animalRepository.findByDesertionNo("D-002")).thenReturn(Optional.empty())
@@ -280,7 +284,7 @@ class AnimalSyncServiceTest {
             eq(1),
             eq(10),
             eq(lastUpdatedAt.toLocalDate()),
-            eq(LocalDate.now()),
+            eq(today),
         )
         verify(syncStateRepository).save(updateState)
     }
