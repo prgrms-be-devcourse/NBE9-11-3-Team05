@@ -48,11 +48,6 @@ instagram:
   user-id: test-instagram-user-id
   access-token: test-instagram-access-token
 
-# GEMINI_API 설정
-gemini:
-  api:
-    key: test-gemini-key
-    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
 
 # AWS S3 설정
 cloud:
